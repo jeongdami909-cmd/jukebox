@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost Crystal: Eternal Archive</title>
+    <title>Ghost Crystal: Text Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
@@ -29,7 +29,7 @@
             text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
         }
         .ghost-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-        .ghost-btn.active { border-color: rgba(255, 255, 255, 0.8); color: #fff; background: rgba(255, 255, 255, 0.15); box-shadow: 0 0 8px rgba(255,255,255,0.2); }
+        .ghost-btn.active { border-color: rgba(255, 255, 255, 0.8); color: #fff; background: rgba(255, 255, 255, 0.15); }
 
         .top-nav { position: fixed; top: 25px; display: flex; gap: 8px; z-index: 2000; }
 
@@ -50,6 +50,7 @@
         .shutter-card {
             position: relative; width: 100%; min-height: 420px;
             background: rgba(0,0,0,0.2); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; overflow: hidden;
+            display: flex; flex-direction: column;
         }
 
         .shutter-cover {
@@ -60,14 +61,14 @@
         }
         .shutter-card.open .shutter-cover { transform: translateX(100%); }
 
-        .desc-container { position: relative; flex: 1; overflow: hidden; margin-top: 15px; }
+        .desc-container { position: relative; flex: 1; overflow: hidden; margin-top: 15px; display: flex; flex-direction: column; }
         .desc-text { 
             color: rgba(255, 255, 255, 0.5); font-size: 11px; line-height: 1.8; 
             font-family: 'Noto Serif KR'; outline: none; 
-            max-height: 120px; overflow: hidden; transition: max-height 0.5s ease;
+            max-height: 140px; overflow: hidden; transition: max-height 0.5s ease;
         }
-        .desc-text.expanded { max-height: 1000px; }
-        .read-more-btn { color: rgba(255, 255, 255, 0.3); font-size: 7px; cursor: pointer; margin-top: 5px; text-transform: uppercase; }
+        .desc-text.expanded { max-height: 2000px; } /* 긴 글 대응 */
+        .read-more-btn { color: rgba(255, 255, 255, 0.3); font-size: 7px; cursor: pointer; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
 
         .media-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex; flex-direction: column; }
         .media-display { width: 100%; height: 75%; background: rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: center; position: relative; }
@@ -103,9 +104,9 @@
     </div>
 
     <script>
-        // --- IndexedDB Logic for Persistence ---
+        // --- IndexedDB Logic ---
         let db;
-        const request = indexedDB.open("CrystalArchiveDB", 1);
+        const request = indexedDB.open("CrystalArchiveDB_V3", 1);
         request.onupgradeneeded = e => {
             db = e.target.result;
             db.createObjectStore("slots", { keyPath: "id" });
@@ -129,16 +130,13 @@
             });
         }
 
-        // --- UI & Interactions ---
         let cardCount = 0;
         let isBGFixed = true;
 
         async function loadAllData() {
-            // Load BG
             const bg = await getData("settings", "bg");
             if(bg && bg.file) document.body.style.backgroundImage = `url(${URL.createObjectURL(bg.file)})`;
             
-            // Load Slots
             const tx = db.transaction("slots", "readonly");
             tx.objectStore("slots").openCursor().onsuccess = e => {
                 const cursor = e.target.result;
@@ -147,23 +145,37 @@
                     cardCount = Math.max(cardCount, cursor.value.id);
                     cursor.continue();
                 } else if (cardCount === 0) {
-                    addNewCard(); // Initial card if empty
+                    addNewCard();
                 }
             };
         }
 
         function togglePanel() { document.getElementById('mainPanel').classList.toggle('is-open'); }
         function toggleShutter(id) { document.getElementById(`card-${id}`).classList.toggle('open'); }
+
+        // --- Improved Text Interaction ---
         function toggleText(id) {
             const text = document.getElementById(`text-${id}`);
             const btn = document.getElementById(`rm-${id}`);
             text.classList.toggle('expanded');
-            btn.innerText = text.classList.contains('expanded') ? "[ CLOSE ]" : "[ READ MORE ]";
+            btn.innerText = text.classList.contains('expanded') ? "[ CLOSE VIEW ]" : "[ READ MORE ]";
         }
 
-        // --- Persistent Actions ---
+        async function clearText(id) {
+            if(confirm("Clear this text?")) {
+                const textElem = document.getElementById(`text-${id}`);
+                textElem.innerText = "";
+                // Update DB if fixed
+                const cardData = await getData("slots", id);
+                if(cardData && cardData.fixed.text) {
+                    cardData.text = "";
+                    await saveData("slots", cardData);
+                }
+            }
+        }
+
         async function fixElement(id, type) {
-            const cardData = await getData("slots", id) || { id: id, text: "", media: null, audio: null, fixed: {} };
+            const cardData = await getData("slots", id) || { id: id, text: "", fixed: {} };
             const btn = document.querySelector(`#card-${id} .fix-${type}`);
             
             btn.classList.toggle('active');
@@ -171,7 +183,6 @@
             
             if(type === 'text') cardData.text = document.getElementById(`text-${id}`).innerText;
             
-            // Files are already in cardData if uploaded. We just update the fix status.
             await saveData("slots", cardData);
         }
 
@@ -182,25 +193,17 @@
             input.onchange = async e => {
                 const file = e.target.files[0];
                 if(!file) return;
-                
                 const cardData = await getData("slots", id) || { id: id, text: "", fixed: {} };
                 cardData[type] = file;
                 await saveData("slots", cardData);
-                
-                const url = URL.createObjectURL(file);
-                if(type === 'media') {
-                    const display = document.getElementById(`display-${id}`);
-                    display.innerHTML = file.type.startsWith('video') ? `<video src="${url}" autoplay loop muted></video>` : `<img src="${url}">`;
-                } else {
-                    document.getElementById(`player-${id}`).src = url;
-                }
+                location.reload(); // Refresh to rebuild Blob URLs safely
             };
             input.click();
         }
 
         function addNewCard() {
             cardCount++;
-            renderCard({ id: cardCount, text: "Write your story...", fixed: {} });
+            renderCard({ id: cardCount, text: "Write your insight here...", fixed: {} });
         }
 
         function renderCard(data) {
@@ -226,13 +229,16 @@
                 </div>
                 <div class="shutter-cover">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
-                        <span class="faint-white">#${String(data.id).padStart(2, '0')} SLOT</span>
+                        <span class="faint-white">#${String(data.id).padStart(2, '0')} ARCHIVE</span>
                         <button class="ghost-btn" onclick="toggleShutter(${data.id})">OPEN VIEW</button>
                     </div>
                     <div class="desc-container">
-                        <div style="display: flex; justify-content: space-between;">
-                             <span style="font-size: 6px; color: rgba(255,255,255,0.2);">DESCRIPTION</span>
-                             <button class="ghost-btn fix-text ${data.fixed.text ? 'active' : ''}" onclick="fixElement(${data.id}, 'text')">FIX TEXT</button>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                             <span style="font-size: 6px; color: rgba(255,255,255,0.2);">INSIGHT</span>
+                             <div style="display: flex; gap: 4px;">
+                                <button class="ghost-btn" style="font-size: 5px;" onclick="clearText(${data.id})">CLEAR</button>
+                                <button class="ghost-btn fix-text ${data.fixed.text ? 'active' : ''}" style="font-size: 5px;" onclick="fixElement(${data.id}, 'text')">FIX TEXT</button>
+                             </div>
                         </div>
                         <div class="desc-text" id="text-${data.id}" contenteditable="true">${data.text}</div>
                         <div class="read-more-btn" id="rm-${data.id}" onclick="toggleText(${data.id})">[ READ MORE ]</div>
