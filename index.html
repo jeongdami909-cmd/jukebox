@@ -120,7 +120,7 @@
     </div>
 
     <script>
-        let db, currentAudio = null;
+        let db, cardIDs = [], currentAudio = null;
         let isBGFixed = true;
         const dbName = "AuraGolMuseumInfinityFinalDB";
         const request = indexedDB.open(dbName, 1);
@@ -132,13 +132,8 @@
         };
         request.onsuccess = e => { db = e.target.result; loadData(); };
 
-        async function saveData(store, data) { 
-            return new Promise((res) => {
-                const tx = db.transaction(store, "readwrite"); 
-                const req = tx.objectStore(store).put(data);
-                req.onsuccess = () => res();
-            });
-        }
+        // 데이터 저장 로직을 가장 안정적이었던 원본 형태로 복구
+        async function saveData(store, data) { const tx = db.transaction(store, "readwrite"); tx.objectStore(store).put(data); }
         async function getData(store, id) { return new Promise(res => { const tx = db.transaction(store, "readonly"); const req = tx.objectStore(store).get(id); req.onsuccess = () => res(req.result); }); }
 
         async function loadData() {
@@ -150,6 +145,7 @@
                 const cursor = e.target.result;
                 if(cursor) { 
                     renderCard(cursor.value); 
+                    cardIDs.push(cursor.value.id); // 🔥 누락되었던 배열 복구 (새 게시판 생성 버그 해결 핵심)
                     cardCount++; 
                     cursor.continue(); 
                 }
@@ -159,8 +155,6 @@
 
         function renderCard(data) {
             const list = document.getElementById('boardList');
-            if(document.getElementById(`card-${data.id}`)) return; 
-
             const card = document.createElement('div');
             card.className = 'shutter-card';
             card.id = `card-${data.id}`;
@@ -177,7 +171,7 @@
                         <button class="ghost-btn" onclick="triggerUp(${data.id}, 'media')">CHANGE MEDIA</button>
                         <button class="ghost-btn" onclick="deleteMedia(${data.id})">DEL MEDIA</button>
                         <button class="ghost-btn fix-media ${data.fixed && data.fixed.media ? 'active' : ''}" onclick="fixElement(${data.id}, 'media')">FIX MEDIA</button>
-                        <button class="ghost-btn" style="color:rgba(255,100,100,0.6);" onclick="deleteCard(${data.id})">DEL SLOT</button>
+                        <button class="ghost-btn" style="color:rgba(255,100,100,0.4);" onclick="deleteCard(${data.id})">DEL SLOT</button>
                     </div>
                 </div>
                 <div class="shutter-cover">
@@ -213,12 +207,13 @@
             };
         }
 
-        async function addNewCard() {
-            if(!db) return;
-            const newId = Date.now(); // 고유 ID 생성
-            const data = { id: newId, text: "Write your insight...", fixed: { text: false, media: false, audio: false } };
-            await saveData("slots", data);
-            renderCard(data);
+        // 🔥 새 게시판(슬롯) 추가 기능 원상 복구 (가장 빠르고 안정적이었던 방식)
+        function addNewCard() { 
+            const newId = cardIDs.length > 0 ? Math.max(...cardIDs) + 1 : 1; 
+            cardIDs.push(newId); 
+            const data = { id: newId, text: "Write your insight...", fixed: {} }; 
+            saveData("slots", data); 
+            renderCard(data); 
         }
 
         async function triggerUp(id, type) {
@@ -252,18 +247,21 @@
             await saveData("slots", data); 
         }
         
+        // 🔥 덮개 안쪽 미디어 삭제 로직 완벽 복구
         async function deleteMedia(id) { 
             if(confirm("Delete media?")) { 
                 const d = await getData("slots", id); 
-                d.media = null; if(d.fixed) d.fixed.media = false; 
+                d.media = null; 
+                if(d.fixed) d.fixed.media = false; 
                 await saveData("slots", d); 
                 document.querySelector(`#card-${id} .media-display`).innerHTML = `<p style="color:rgba(255,255,255,0.1); font-size:7px;">ADD MEDIA</p>`; 
-                document.querySelector(`#card-${id} .fix-media`).classList.remove('active'); 
+                const fixBtn = document.querySelector(`#card-${id} .fix-media`);
+                if(fixBtn) fixBtn.classList.remove('active'); 
             } 
         }
 
         async function deleteAudio(id) { if(confirm("Delete music?")) { const d = await getData("slots", id); d.audio = null; if(d.fixed) d.fixed.audio = false; await saveData("slots", d); document.getElementById(`player-${id}`).src = ""; document.querySelector(`#card-${id} .fix-audio`).classList.remove('active'); } }
-        async function deleteCard(id) { if(confirm("Delete slot?")) { const tx = db.transaction("slots", "readwrite"); tx.objectStore("slots").delete(id); document.getElementById(`card-${id}`).remove(); } }
+        async function deleteCard(id) { if(confirm("Delete slot?")) { const tx = db.transaction("slots", "readwrite"); tx.objectStore("slots").delete(id); document.getElementById(`card-${id}`).remove(); cardIDs = cardIDs.filter(x => x !== id); } }
         function togglePanel() { document.getElementById('mainPanel').classList.toggle('is-open'); }
         function toggleShutter(id) { document.getElementById(`card-${id}`).classList.toggle('open'); }
         document.getElementById('bgIn').onchange = async e => { const f = e.target.files[0]; if(f) { await saveData("settings", { id: "bg", file: f }); location.reload(); } };
