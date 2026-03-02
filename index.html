@@ -132,7 +132,6 @@
         };
         request.onsuccess = e => { db = e.target.result; loadData(); };
 
-        // 데이터 저장 로직을 가장 안정적이었던 원본 형태로 복구
         async function saveData(store, data) { const tx = db.transaction(store, "readwrite"); tx.objectStore(store).put(data); }
         async function getData(store, id) { return new Promise(res => { const tx = db.transaction(store, "readonly"); const req = tx.objectStore(store).get(id); req.onsuccess = () => res(req.result); }); }
 
@@ -145,7 +144,7 @@
                 const cursor = e.target.result;
                 if(cursor) { 
                     renderCard(cursor.value); 
-                    cardIDs.push(cursor.value.id); // 🔥 누락되었던 배열 복구 (새 게시판 생성 버그 해결 핵심)
+                    cardIDs.push(cursor.value.id); 
                     cardCount++; 
                     cursor.continue(); 
                 }
@@ -155,21 +154,24 @@
 
         function renderCard(data) {
             const list = document.getElementById('boardList');
+            if(document.getElementById(`card-${data.id}`)) return; 
+
             const card = document.createElement('div');
             card.className = 'shutter-card';
             card.id = `card-${data.id}`;
             const mediaUrl = data.media ? URL.createObjectURL(data.media) : null;
             const audioUrl = data.audio ? URL.createObjectURL(data.audio) : null;
 
+            // 🔥 덮개 열었을 때 바로 보이는 "클로즈", "수정", "삭제" 버튼 부분입니다.
             card.innerHTML = `
                 <div class="media-back">
                     <div class="media-display" onclick="triggerUp(${data.id}, 'media')">
                         ${data.media ? (data.media.type.startsWith('video') ? `<video src="${mediaUrl}" autoplay loop muted></video>` : `<img src="${mediaUrl}">`) : `<p style="color:rgba(255,255,255,0.1); font-size:7px;">ADD MEDIA</p>`}
                     </div>
                     <div class="media-inner-nav">
-                        <button class="ghost-btn" onclick="toggleShutter(${data.id})">CLOSE VIEW</button>
-                        <button class="ghost-btn" onclick="triggerUp(${data.id}, 'media')">CHANGE MEDIA</button>
-                        <button class="ghost-btn" onclick="deleteMedia(${data.id})">DEL MEDIA</button>
+                        <button class="ghost-btn" onclick="toggleShutter(${data.id})">CLOSE</button>
+                        <button class="ghost-btn" onclick="triggerUp(${data.id}, 'media')">EDIT</button>
+                        <button class="ghost-btn" onclick="deleteMedia(${data.id})">DELETE</button>
                         <button class="ghost-btn fix-media ${data.fixed && data.fixed.media ? 'active' : ''}" onclick="fixElement(${data.id}, 'media')">FIX MEDIA</button>
                         <button class="ghost-btn" style="color:rgba(255,100,100,0.4);" onclick="deleteCard(${data.id})">DEL SLOT</button>
                     </div>
@@ -207,7 +209,6 @@
             };
         }
 
-        // 🔥 새 게시판(슬롯) 추가 기능 원상 복구 (가장 빠르고 안정적이었던 방식)
         function addNewCard() { 
             const newId = cardIDs.length > 0 ? Math.max(...cardIDs) + 1 : 1; 
             cardIDs.push(newId); 
@@ -247,7 +248,6 @@
             await saveData("slots", data); 
         }
         
-        // 🔥 덮개 안쪽 미디어 삭제 로직 완벽 복구
         async function deleteMedia(id) { 
             if(confirm("Delete media?")) { 
                 const d = await getData("slots", id); 
