@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA-GOL: Enchanted Orgel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: radial-gradient(circle, #2c1e12 0%, #0f0a05 100%); font-family: 'Noto Serif KR', serif; color: #e5e7eb; overflow: hidden; }
+        .orgel-stage { transform-style: preserve-3d; transition: transform 5s linear; }
+        .rotating { animation: rotateOrgel 20s linear infinite; }
+        @keyframes rotateOrgel { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+        .owl-hover:hover { filter: drop-shadow(0 0 10px #eebd2b); }
+    </style>
+</head>
+<body class="h-screen flex flex-row p-8 gap-8">
+
+    <aside class="w-1/4 glass-panel border border-yellow-900/30 p-6 rounded-xl bg-black/20 overflow-y-auto">
+        <h2 class="text-magic-gold text-xl font-bold mb-4 border-b border-magic-gold/30 pb-2">오늘의 이야기</h2>
+        <p id="story-text" class="text-gray-300 leading-relaxed text-sm">
+            "바구니 가득 담긴 것은 숲의 비밀이었을까? 빨간 두건 아래 갈색 머리 소녀는 여우에게 나지막이 속삭였다. 
+            그들의 발밑으로 노란 꽃들이 노래하듯 피어오르고..."
+        </p>
+    </aside>
+
+    <main class="flex-1 flex flex-col items-center justify-center relative">
+        <div id="main-stage" class="relative w-80 h-80 rounded-full bg-emerald-900/20 border-b-8 border-yellow-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border-4 border-magic-gold/20 opacity-50 bg-[url('https://www.transparenttextures.com/patterns/flowers.png')]"></div>
+            
+            <div id="characters" class="orgel-stage relative w-full h-full flex items-center justify-center">
+                <div class="text-6xl" title="소녀와 여우">👧🦊</div>
+                <div class="absolute bottom-10 text-2xl">💐🌷🌹</div>
+            </div>
+        </div>
+
+        <button id="wind-key" class="mt-12 group flex flex-col items-center gap-2">
+            <div class="w-16 h-16 bg-gradient-to-b from-yellow-400 to-yellow-700 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform">
+                <span class="text-3xl">⚙️</span>
+            </div>
+            <span class="text-magic-gold text-xs uppercase tracking-widest font-bold">Wind Up</span>
+        </button>
+    </main>
+
+    <aside class="w-1/4 flex flex-col gap-6">
+        <div class="p-4 bg-black/40 rounded-xl border border-magic-gold/20 text-center">
+            <div class="text-5xl mb-2 owl-hover cursor-pointer" id="owl-clock">🦉</div>
+            <div class="text-magic-gold font-bold text-lg" id="current-time">00:00</div>
+            <p class="text-[10px] text-gray-500 mt-1">부엉이는 매시간 통찰을 건넵니다</p>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2">
+            <script>
+                for(let i=1; i<=20; i++) {
+                    document.write(`<button class="w-full aspect-square bg-yellow-900/20 border border-magic-gold/30 rounded-md text-[10px] hover:bg-magic-gold/20 transition-colors">${i}</button>`);
+                }
+            </script>
+        </div>
+    </aside>
+
+    <script>
+        const windKey = document.getElementById('wind-key');
+        const characters = document.getElementById('characters');
+        const owl = document.getElementById('owl-clock');
+
+        // 태엽 감기 및 회전 로직
+        windKey.addEventListener('click', () => {
+            characters.classList.toggle('rotating');
+            // 여기서 오르골 소리 재생 함수 호출
+        });
+
+        // 부엉이 클릭 시 소리 (임시)
+        owl.addEventListener('click', () => {
+            alert("부엉이가 지혜의 눈을 뜨며 '푸훗-' 소리를 냅니다.");
+        });
+
+        // 시간 업데이트
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('current-time').innerText = now.toLocaleTimeString();
+        }, 1000);
+    </script>
+</body>
+</html>
