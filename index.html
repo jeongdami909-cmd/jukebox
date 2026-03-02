@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA-GOL: Bottomless Infinity</title>
+    <title>AURA-GOL: Infinity Dynamic Cover</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
@@ -42,21 +42,22 @@
 
         .board-area { width: min(95vw, 550px); flex: 1; overflow-y: auto; padding: 20px 0 200px; display: flex; flex-direction: column; gap: 60px; }
         
-        /* [핵심] 밑부분을 완전히 터버린 카드 구조 */
+        /* [핵심] 카드 크기 제한 해제: 내용에 따라 무한 확장 */
         .shutter-card {
-            position: relative; width: 100%; min-height: 400px; height: auto;
+            position: relative; width: 100%; min-height: 450px; height: auto;
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; overflow: hidden;
             display: flex; flex-direction: column;
         }
 
-        /* [핵심] 덮개를 상단 고정(relative)으로 두어 아래로만 늘어나게 함 */
+        /* [핵심] 덮개가 높이를 결정하도록 설정 (relative) */
         .shutter-cover {
-            position: relative; width: 100%; height: auto; min-height: 400px;
+            position: relative; width: 100%; height: auto; min-height: 450px;
             background: rgba(40, 40, 40, 0.96); backdrop-filter: blur(15px); z-index: 20;
-            padding: 25px; display: flex; flex-direction: column;
+            padding: 30px; display: flex; flex-direction: column;
             border-right: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.8s ease;
         }
-        .shutter-card.open .shutter-cover { transform: translateX(100%); position: absolute; height: 100%; }
+        /* 오픈 시에도 높이 보존을 위해 relative 유지 */
+        .shutter-card.open .shutter-cover { transform: translateX(100%); position: relative; }
 
         .desc-container { position: relative; margin-top: 15px; display: flex; flex-direction: column; flex-grow: 1; }
         .desc-text { 
@@ -65,16 +66,17 @@
             max-height: none !important; overflow: visible !important;
         }
 
+        /* 안쪽 미디어 영역 */
         .media-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex; flex-direction: column; }
-        .media-display { width: 100%; height: 300px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .media-display { width: 100%; height: 320px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .media-display video, .media-display img { width: 100%; height: 100%; object-fit: cover; }
         .media-inner-nav { width: 100%; flex-grow: 1; min-height: 80px; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        .faint-white { color: rgba(255, 255, 255, 0.3); font-size: 7px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
+        .faint-white { color: rgba(255, 255, 255, 0.3); font-size: 8px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
         input[type="file"] { display: none; }
 
         /* [핵심] 상단 미니 음악 바 */
-        .music-top-mini { display: flex; gap: 4px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .music-top-mini { display: flex; gap: 5px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.03); }
     </style>
 </head>
 <body>
@@ -98,7 +100,7 @@
 
     <script>
         let db, cardIDs = [], currentAudio = null;
-        const dbName = "AuraGolBottomlessDB";
+        const dbName = "AuraGolInfinityDynamicDB";
         const request = indexedDB.open(dbName, 1);
 
         request.onupgradeneeded = e => {
@@ -118,7 +120,7 @@
             tx.objectStore("slots").openCursor().onsuccess = e => {
                 const cursor = e.target.result;
                 if(cursor) { renderCard(cursor.value); cardIDs.push(cursor.value.id); cursor.continue(); }
-                else if (cardIDs.length === 0) addNewCard();
+                else if (cardCount === 0) addNewCard();
             };
         }
 
@@ -144,9 +146,9 @@
                 </div>
                 <div class="shutter-cover">
                     <div class="music-top-mini">
-                        <button class="ghost-btn" onclick="triggerUp(${data.id}, 'audio')">SET MUSIC</button>
+                        <button class="ghost-btn" onclick="triggerUp(${data.id}, 'audio')">MUSIC</button>
                         <button class="ghost-btn" id="play-${data.id}" onclick="togglePlay(${data.id})">PLAY</button>
-                        <button class="ghost-btn fix-audio ${data.fixed.audio ? 'active' : ''}" onclick="fixElement(${data.id}, 'audio')">FIX MUSIC</button>
+                        <button class="ghost-btn fix-audio ${data.fixed.audio ? 'active' : ''}" onclick="fixElement(${data.id}, 'audio')">FIX</button>
                         <button class="ghost-btn" style="color:rgba(255,100,100,0.3);" onclick="deleteAudio(${data.id})">DEL</button>
                         <audio id="player-${data.id}" src="${audioUrl || ''}" loop></audio>
                     </div>
