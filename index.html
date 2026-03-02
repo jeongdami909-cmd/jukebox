@@ -3,81 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA-GOL: Enchanted Orgel</title>
+    <title>AURA-GOL: Real Music Box</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { background: radial-gradient(circle, #2c1e12 0%, #0f0a05 100%); font-family: 'Noto Serif KR', serif; color: #e5e7eb; overflow: hidden; }
-        .orgel-stage { transform-style: preserve-3d; transition: transform 5s linear; }
-        .rotating { animation: rotateOrgel 20s linear infinite; }
-        @keyframes rotateOrgel { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
-        .owl-hover:hover { filter: drop-shadow(0 0 10px #eebd2b); }
+        body { 
+            background: radial-gradient(circle at center, #3e2723 0%, #1a1005 100%); 
+            font-family: 'Noto Serif KR', serif; 
+            color: #d7ccc8; 
+            overflow: hidden;
+        }
+
+        /* 3D 원형 무대 설정 */
+        .stage-container {
+            perspective: 1000px; /* 원근감 부여 */
+        }
+
+        .music-box-cylinder {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            transform-style: preserve-3d;
+            transform: rotateX(60deg) rotateZ(0deg); /* 무대를 눕혀서 입체감 형성 */
+            transition: transform 1s ease-out;
+        }
+
+        /* 오르골 재생 시 회전 애니메이션 */
+        .playing .music-box-cylinder {
+            animation: cylinderSpin 15s linear infinite;
+        }
+
+        @keyframes cylinderSpin {
+            0% { transform: rotateX(60deg) rotateZ(0deg); }
+            100% { transform: rotateX(60deg) rotateZ(360deg); }
+        }
+
+        /* 꽃밭 바닥 */
+        .stage-base {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, #556b2f 30%, #3e4f24 80%);
+            border: 8px solid #8d6e63;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 20px 50px rgba(0,0,0,0.6);
+        }
+
+        /* 무대 위 캐릭터 (회전 시 똑바로 서 보이도록 역회전) */
+        .character-layer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotateX(-60deg);
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            font-size: 5rem;
+            text-shadow: 0px 10px 10px rgba(0,0,0,0.5);
+        }
+
+        /* 금속 빗살(Comb) 장식 */
+        .metal-comb {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 40px;
+            background: linear-gradient(to bottom, #cfd8dc, #90a4ae);
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .comb-tooth {
+            width: 4px;
+            height: 100%;
+            background: #b0bec5;
+            border-right: 1px solid #78909c;
+        }
+
+        /* 황동 버튼 스타일 */
+        .brass-btn {
+            background: linear-gradient(145deg, #a1887f, #5d4037);
+            border: 2px solid #3e2723;
+            box-shadow: inset 2px 2px 5px rgba(255,255,255,0.2), 3px 3px 10px rgba(0,0,0,0.5);
+            transition: all 0.1s;
+        }
+        .brass-btn:active, .brass-btn.active {
+            transform: translateY(4px);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.6), 1px 1px 2px rgba(0,0,0,0.5);
+            background: linear-gradient(145deg, #8d6e63, #4e342e);
+        }
     </style>
 </head>
-<body class="h-screen flex flex-row p-8 gap-8">
+<body class="h-screen flex flex-row p-8 gap-8 items-center justify-center">
 
-    <aside class="w-1/4 glass-panel border border-yellow-900/30 p-6 rounded-xl bg-black/20 overflow-y-auto">
-        <h2 class="text-magic-gold text-xl font-bold mb-4 border-b border-magic-gold/30 pb-2">오늘의 이야기</h2>
-        <p id="story-text" class="text-gray-300 leading-relaxed text-sm">
-            "바구니 가득 담긴 것은 숲의 비밀이었을까? 빨간 두건 아래 갈색 머리 소녀는 여우에게 나지막이 속삭였다. 
-            그들의 발밑으로 노란 꽃들이 노래하듯 피어오르고..."
+    <aside class="w-1/4 h-full bg-[#271c19] border-2 border-[#5d4037] p-8 rounded-lg shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')]"></div>
+        <h2 class="text-[#d7ccc8] text-2xl font-bold mb-6 border-b border-[#5d4037] pb-4">오르골의 기록</h2>
+        <p id="story-text" class="text-[#bcaaa4] leading-loose text-sm relative z-10">
+            "버튼을 누르자 태엽이 감기는 묵직한 소리가 났다. <br><br>
+            빨간 두건을 쓴 소녀는 바구니를 고쳐 매고 숲속 빈터로 나섰고, 
+            기다렸다는 듯 갈색 여우가 다가와 꼬리를 흔들었다. 
+            발밑의 노란 꽃들은 금속성의 맑은 소리를 내며 흔들리기 시작했다..."
         </p>
     </aside>
 
     <main class="flex-1 flex flex-col items-center justify-center relative">
-        <div id="main-stage" class="relative w-80 h-80 rounded-full bg-emerald-900/20 border-b-8 border-yellow-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-center">
-            <div class="absolute inset-0 rounded-full border-4 border-magic-gold/20 opacity-50 bg-[url('https://www.transparenttextures.com/patterns/flowers.png')]"></div>
+        <div class="stage-container" id="orgel-stage">
+            <div class="music-box-cylinder">
+                <div class="stage-base"></div>
+                <div class="absolute top-1/4 left-1/4 text-3xl">🌼</div>
+                <div class="absolute bottom-1/4 right-1/4 text-3xl">🌻</div>
+                <div class="absolute top-1/2 right-10 text-3xl">🌷</div>
+                
+                <div class="character-layer">
+                    <div title="빨간 두건 소녀와 바구니">👧🧺</div>
+                    <div title="여우">🦊</div>
+                </div>
+            </div>
             
-            <div id="characters" class="orgel-stage relative w-full h-full flex items-center justify-center">
-                <div class="text-6xl" title="소녀와 여우">👧🦊</div>
-                <div class="absolute bottom-10 text-2xl">💐🌷🌹</div>
+            <div class="metal-comb">
+                <div class="comb-tooth"></div><div class="comb-tooth"></div><div class="comb-tooth"></div>
+                <div class="comb-tooth"></div><div class="comb-tooth"></div><div class="comb-tooth"></div>
+                <div class="comb-tooth"></div><div class="comb-tooth"></div><div class="comb-tooth"></div>
+                <div class="comb-tooth"></div><div class="comb-tooth"></div><div class="comb-tooth"></div>
             </div>
         </div>
 
-        <button id="wind-key" class="mt-12 group flex flex-col items-center gap-2">
-            <div class="w-16 h-16 bg-gradient-to-b from-yellow-400 to-yellow-700 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform">
-                <span class="text-3xl">⚙️</span>
-            </div>
-            <span class="text-magic-gold text-xs uppercase tracking-widest font-bold">Wind Up</span>
+        <button id="play-btn" class="mt-16 brass-btn w-24 h-24 rounded-full flex flex-col items-center justify-center text-[#eefeeb]">
+            <span class="text-4xl">⚙️</span>
+            <span class="text-[10px] uppercase tracking-widest mt-1 font-bold text-[#d7ccc8]">Play</span>
         </button>
     </main>
 
-    <aside class="w-1/4 flex flex-col gap-6">
-        <div class="p-4 bg-black/40 rounded-xl border border-magic-gold/20 text-center">
-            <div class="text-5xl mb-2 owl-hover cursor-pointer" id="owl-clock">🦉</div>
-            <div class="text-magic-gold font-bold text-lg" id="current-time">00:00</div>
-            <p class="text-[10px] text-gray-500 mt-1">부엉이는 매시간 통찰을 건넵니다</p>
+    <aside class="w-1/4 h-full flex flex-col gap-6">
+        <div class="bg-[#271c19] border-2 border-[#5d4037] p-6 rounded-lg text-center shadow-xl relative cursor-pointer" id="owl-clock">
+            <div class="text-6xl mb-4 transition-transform hover:scale-110">🦉</div>
+            <div class="text-[#d7ccc8] font-bold text-3xl tracking-wider" id="current-time">00:00</div>
+            <p class="text-xs text-[#8d6e63] mt-2">매시간 정각, 부엉이가 시간을 알립니다.</p>
         </div>
 
-        <div class="grid grid-cols-4 gap-2">
+        <div class="grid grid-cols-4 gap-3 flex-1">
             <script>
+                // 20개의 버튼 동적 생성
                 for(let i=1; i<=20; i++) {
-                    document.write(`<button class="w-full aspect-square bg-yellow-900/20 border border-magic-gold/30 rounded-md text-[10px] hover:bg-magic-gold/20 transition-colors">${i}</button>`);
+                    document.write(`
+                        <button class="brass-btn rounded-md text-[#d7ccc8] font-bold text-sm flex items-center justify-center hover:text-white" onclick="selectSong(${i}, this)">
+                            ${i}
+                        </button>
+                    `);
                 }
             </script>
         </div>
     </aside>
 
     <script>
-        const windKey = document.getElementById('wind-key');
-        const characters = document.getElementById('characters');
-        const owl = document.getElementById('owl-clock');
+        const playBtn = document.getElementById('play-btn');
+        const orgelStage = document.getElementById('orgel-stage');
+        const owlClock = document.getElementById('owl-clock');
+        let isPlaying = false;
 
-        // 태엽 감기 및 회전 로직
-        windKey.addEventListener('click', () => {
-            characters.classList.toggle('rotating');
-            // 여기서 오르골 소리 재생 함수 호출
+        // 재생/정지 토글 기능
+        playBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            if(isPlaying) {
+                orgelStage.classList.add('playing');
+                playBtn.classList.add('active');
+                // TODO: 실제 오르골 오디오 파일 재생 코드 추가
+            } else {
+                orgelStage.classList.remove('playing');
+                playBtn.classList.remove('active');
+                // TODO: 오디오 정지
+            }
         });
 
-        // 부엉이 클릭 시 소리 (임시)
-        owl.addEventListener('click', () => {
-            alert("부엉이가 지혜의 눈을 뜨며 '푸훗-' 소리를 냅니다.");
+        // 20곡 버튼 클릭 시 효과
+        function selectSong(num, btn) {
+            // 모든 버튼의 액티브 효과 제거
+            document.querySelectorAll('.brass-btn').forEach(b => b.classList.remove('active'));
+            // 누른 버튼만 액티브 처리
+            btn.classList.add('active');
+            
+            // 이야기 텍스트 변경 (예시)
+            const storyText = document.getElementById('story-text');
+            storyText.innerHTML = `Track ${num} 이(가) 선택되었습니다.<br><br>새로운 금속 실린더가 장착되는 소리가 들립니다. 소녀와 여우는 잠시 숨을 고르고 다음 이야기를 기다립니다...`;
+            
+            // 곡이 바뀌면 자동으로 재생 시작
+            if(!isPlaying) playBtn.click();
+        }
+
+        // 부엉이 시계 및 클릭 이벤트
+        owlClock.addEventListener('click', () => {
+            alert("부엉이가 날개를 퍼덕이며 '푸훗- 푸훗-' 깊은 울림의 종소리를 냅니다.");
+            // TODO: 부엉이 종소리 오디오 재생
         });
 
-        // 시간 업데이트
+        // 실제 시계 연동
         setInterval(() => {
             const now = new Date();
-            document.getElementById('current-time').innerText = now.toLocaleTimeString();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('current-time').innerText = `${hours}:${minutes}`;
+            
+            // 정각 알림 로직 (예: 매 분 00초에 알림 - 테스트를 위해 분 단위로 설정 가능)
+            if(now.getMinutes() === 0 && now.getSeconds() === 0) {
+                console.log("정각입니다! 부엉이가 웁니다.");
+                // 정각 오디오 재생 로직이 들어갈 곳
+            }
         }, 1000);
     </script>
 </body>
