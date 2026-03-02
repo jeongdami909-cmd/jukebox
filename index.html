@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA-GOL: Eternal Infinity Master</title>
+    <title>AURA-GOL: Perfect Infinity Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
@@ -40,27 +40,27 @@
         .panel-handle { width: 100%; height: 70px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .handle-bar { width: 40px; height: 1px; background: rgba(255, 255, 255, 0.2); margin-bottom: 8px; }
 
-        .board-area { width: min(95vw, 550px); flex: 1; overflow-y: auto; padding: 20px 0 100px; display: flex; flex-direction: column; gap: 40px; }
+        /* [핵심] 하단 여백을 충분히 주어 버튼이 가려지지 않게 함 */
+        .board-area { width: min(95vw, 550px); flex: 1; overflow-y: auto; padding: 20px 0 150px; display: flex; flex-direction: column; gap: 50px; }
         
-        /* [GPT Fix #1] 카드 높이 자동 유지 */
         .shutter-card {
             position: relative; width: 100%; min-height: 450px; height: auto;
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; overflow: hidden;
             display: flex; flex-direction: column;
         }
 
+        /* 덮개 레이아웃: 내부 요소가 길어지면 높이도 함께 늘어남 */
         .shutter-cover {
             position: relative; width: 100%; height: auto; min-height: 450px;
             background: rgba(40, 40, 40, 0.96); backdrop-filter: blur(15px); z-index: 10;
             padding: 30px; display: flex; flex-direction: column;
             border-right: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.8s ease;
         }
-        /* [GPT Fix #1] 열렸을 때도 relative 유지하여 높이 확보 */
-        .shutter-card.open .shutter-cover { transform: translateX(100%); position: relative; z-index: 20; }
+        .shutter-card.open .shutter-cover { transform: translateX(100%); position: absolute; z-index: 20; }
 
         .desc-container { position: relative; margin-top: 20px; display: flex; flex-direction: column; flex-grow: 1; }
         .desc-text { 
-            color: rgba(255, 255, 255, 0.5); font-size: 11px; line-height: 1.8; 
+            color: rgba(255, 255, 255, 0.5); font-size: 11px; line-height: 2; 
             font-family: 'Noto Serif KR'; outline: none; 
             max-height: none !important; overflow: visible !important;
         }
@@ -94,9 +94,9 @@
     </div>
 
     <script>
-        // --- [GPT Fix #2, #6] ID 및 데이터 관리 ---
         let db, cardIDs = [], currentAudio = null;
-        const request = indexedDB.open("AuraGolEternalMasterDB", 1);
+        const dbName = "AuraGolUltimateMasterDB";
+        const request = indexedDB.open(dbName, 1);
 
         request.onupgradeneeded = e => {
             db = e.target.result;
@@ -104,40 +104,22 @@
             db.createObjectStore("settings", { keyPath: "id" });
         };
 
-        request.onsuccess = e => {
-            db = e.target.result;
-            loadData();
-        };
+        request.onsuccess = e => { db = e.target.result; loadData(); };
 
-        async function saveData(store, data) {
-            const tx = db.transaction(store, "readwrite");
-            tx.objectStore(store).put(data);
-        }
-
-        async function getData(store, id) {
-            return new Promise(res => {
-                const tx = db.transaction(store, "readonly");
-                const req = tx.objectStore(store).get(id);
-                req.onsuccess = () => res(req.result);
-            });
-        }
+        async function saveData(store, data) { const tx = db.transaction(store, "readwrite"); tx.objectStore(store).put(data); }
+        async function getData(store, id) { return new Promise(res => { const tx = db.transaction(store, "readonly"); const req = tx.objectStore(store).get(id); req.onsuccess = () => res(req.result); }); }
 
         async function loadData() {
             const bg = await getData("settings", "bg");
             if(bg && bg.file) document.body.style.backgroundImage = `url(${URL.createObjectURL(bg.file)})`;
-            
             const tx = db.transaction("slots", "readonly");
             tx.objectStore("slots").openCursor().onsuccess = e => {
                 const cursor = e.target.result;
-                if(cursor) {
-                    renderCard(cursor.value);
-                    cardIDs.push(cursor.value.id);
-                    cursor.continue();
-                } else if (cardIDs.length === 0) addNewCard();
+                if(cursor) { renderCard(cursor.value); cardIDs.push(cursor.value.id); cursor.continue(); }
+                else if (cardIDs.length === 0) addNewCard();
             };
         }
 
-        // --- [GPT Fix #3] 새로고침 없는 업로드 ---
         async function triggerUp(id, type) {
             const input = document.createElement('input');
             input.type = 'file';
@@ -145,17 +127,14 @@
             input.onchange = async e => {
                 const f = e.target.files[0];
                 if(!f) return;
-                const data = await getData("slots", id) || { id: id, text: "", fixed: {} };
+                const data = await getData("slots", id);
                 data[type] = f;
                 await saveData("slots", data);
-                
                 const url = URL.createObjectURL(f);
                 if(type === 'media') {
                     const disp = document.querySelector(`#card-${id} .media-display`);
                     disp.innerHTML = f.type.startsWith('video') ? `<video src="${url}" autoplay loop muted></video>` : `<img src="${url}">`;
-                } else {
-                    document.getElementById(`player-${id}`).src = url;
-                }
+                } else { document.getElementById(`player-${id}`).src = url; }
             };
             input.click();
         }
@@ -163,7 +142,9 @@
         function addNewCard() {
             const newId = cardIDs.length > 0 ? Math.max(...cardIDs) + 1 : 1;
             cardIDs.push(newId);
-            renderCard({ id: newId, text: "Write your insight...", fixed: {} });
+            const data = { id: newId, text: "Write your insight...", fixed: {} };
+            saveData("slots", data);
+            renderCard(data);
         }
 
         function renderCard(data) {
@@ -194,11 +175,14 @@
                     <div class="desc-container">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                              <span style="font-size: 6px; color: rgba(255,255,255,0.2);">INSIGHT</span>
-                             <button class="ghost-btn fix-text ${data.fixed.text ? 'active' : ''}" style="font-size: 5px;" onclick="fixElement(${data.id}, 'text')">FIX TEXT</button>
+                             <div style="display: flex; gap: 4px;">
+                                <button class="ghost-btn" style="font-size: 5px;" onclick="clearText(${data.id})">CLEAR</button>
+                                <button class="ghost-btn fix-text ${data.fixed.text ? 'active' : ''}" style="font-size: 5px;" onclick="fixElement(${data.id}, 'text')">FIX TEXT</button>
+                             </div>
                         </div>
                         <div class="desc-text" id="text-${data.id}" contenteditable="true">${data.text}</div>
                     </div>
-                    <div style="display: flex; gap: 8px; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px; align-items: center;">
+                    <div style="display: flex; gap: 8px; margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; align-items: center;">
                         <button class="ghost-btn" onclick="triggerUp(${data.id}, 'audio')">MUSIC</button>
                         <button class="ghost-btn" id="play-${data.id}" onclick="togglePlay(${data.id})">PLAY</button>
                         <button class="ghost-btn fix-audio ${data.fixed.audio ? 'active' : ''}" onclick="fixElement(${data.id}, 'audio')">FIX MUSIC</button>
@@ -208,16 +192,14 @@
             `;
             list.appendChild(card);
 
-            // --- [GPT Fix #4] 텍스트 자동 저장 ---
             const txt = document.getElementById(`text-${data.id}`);
             txt.oninput = async () => {
-                const dataObj = await getData("slots", data.id) || { id: data.id, text: "", fixed: {} };
+                const dataObj = await getData("slots", data.id);
                 dataObj.text = txt.innerText;
                 await saveData("slots", dataObj);
             };
         }
 
-        // --- [GPT Fix #5] 단일 음악 재생 ---
         function togglePlay(id) {
             const p = document.getElementById(`player-${id}`);
             const b = document.getElementById(`play-${id}`);
