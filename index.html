@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA-GOL: Museum Infinity Master</title>
+    <title>AURA-GOL: Museum Infinity Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
@@ -41,23 +41,24 @@
         .panel-handle { width: 100%; height: 70px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .handle-bar { width: 40px; height: 1px; background: rgba(255, 255, 255, 0.2); margin-bottom: 8px; }
 
-        /* [미술관 앱 스타일] 하단 무한 개방 및 넉넉한 여백 */
+        /* [GPT Fix] 미술관 앱 스타일: 하단 40vh 개방 */
         .board-area { width: min(95vw, 550px); flex: 1; overflow-y: auto; padding: 40px 0 40vh; display: flex; flex-direction: column; gap: 80px; }
         
+        /* [GPT Fix] 카드 구조: 내용에 따라 무한 확장 (Museum App Style) */
         .shutter-card {
             position: relative; width: 100%; min-height: 500px; height: auto;
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; overflow: hidden;
             display: flex; flex-direction: column;
         }
 
-        /* [핵심 수정] 덮개를 relative로 두어 내용물에 따라 카드 높이가 늘어나게 함 */
+        /* [핵심] 덮개를 relative로 두어 글 길이에 따라 카드 높이를 밀어줌 */
         .shutter-cover {
             position: relative; width: 100%; height: auto; min-height: 500px;
             background: rgba(20, 20, 25, 0.98); backdrop-filter: blur(25px); z-index: 20;
             padding: 50px 40px; display: flex; flex-direction: column; justify-content: flex-start;
             border-right: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.8s ease;
         }
-        /* 오픈 시 미디어 영역을 보여주기 위해 옆으로 밀기 */
+        /* 셔터 열기 효과: 옆으로 밀려나도 relative 유지하여 높이 보존 */
         .shutter-card.open .shutter-cover { transform: translateX(100%); position: relative; }
 
         .desc-container { position: relative; margin-top: 25px; display: flex; flex-direction: column; flex-grow: 1; }
@@ -67,7 +68,6 @@
             max-height: none !important; overflow: visible !important;
         }
 
-        /* 안쪽 미디어 관리창 (덮개 뒤에 숨어 있음) */
         .media-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex; flex-direction: column; }
         .media-display { width: 100%; height: 350px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .media-display video, .media-display img { width: 100%; height: 100%; object-fit: cover; }
@@ -76,7 +76,7 @@
         .faint-white { color: rgba(255, 255, 255, 0.3); font-size: 8px; letter-spacing: 3px; text-transform: uppercase; font-weight: bold; }
         input[type="file"] { display: none; }
 
-        /* [요청사항] 상단 미니 컨트롤 바 */
+        /* 상단 미니 컨트롤 바 (음악 전용) */
         .top-mini-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
@@ -100,8 +100,9 @@
     </div>
 
     <script>
+        // [GPT Fix] ID 관리 및 음악 단일 재생 설정
         let db, cardIDs = [], currentAudio = null;
-        const dbName = "AuraGolFinalMuseumDB";
+        const dbName = "AuraGolFinalStableDB";
         const request = indexedDB.open(dbName, 1);
 
         request.onupgradeneeded = e => {
@@ -121,6 +122,7 @@
             tx.objectStore("slots").openCursor().onsuccess = e => {
                 const cursor = e.target.result;
                 if(cursor) { renderCard(cursor.value); cardIDs.push(cursor.value.id); cursor.continue(); }
+                // [GPT Fix] cardCount 에러 해결
                 else if (cardIDs.length === 0) addNewCard();
             };
         }
@@ -170,7 +172,7 @@
             `;
             list.appendChild(card);
 
-            // [실시간 자동 저장] 입력하는 즉시 저장
+            // [GPT Fix] 실시간 자동 저장
             const txt = document.getElementById(`text-${data.id}`);
             txt.oninput = async () => {
                 const dataObj = await getData("slots", data.id);
@@ -185,6 +187,7 @@
                 const f = e.target.files[0]; if(!f) return;
                 const data = await getData("slots", id); data[type] = f; await saveData("slots", data);
                 const url = URL.createObjectURL(f);
+                // [GPT Fix] 새로고침 없는 스마트 업로드
                 if(type === 'media') { document.querySelector(`#card-${id} .media-display`).innerHTML = f.type.startsWith('video') ? `<video src="${url}" autoplay loop muted></video>` : `<img src="${url}">`; }
                 else { document.getElementById(`player-${id}`).src = url; }
             };
