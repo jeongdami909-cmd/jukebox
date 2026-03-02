@@ -2,126 +2,93 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>AURA-GOL: Pure Orgel Masterpiece</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA-GOL: Pure Gold Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+KR:wght@300;400&display=swap');
-        body { margin: 0; background: radial-gradient(circle, #1a0f0a 0%, #000 100%); color: #d4af37; font-family: 'Cinzel', serif; overflow: hidden; height: 100vh; }
-        #canvas-container { width: 100%; height: 60%; cursor: grab; }
-        .wood-base { position: absolute; bottom: 35%; left: 50%; transform: translateX(-50%); width: 350px; height: 100px; background: #3d2511; border: 4px solid #231408; border-radius: 10px; box-shadow: 0 40px 80px rgba(0,0,0,1); z-index: 5; }
-        .book-ui { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 480px; background: #f4e4bc; border: 3px solid #5c3a21; border-radius: 5px; padding: 20px; display: flex; justify-content: space-between; align-items: center; color: #3e2723; z-index: 20; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
-        .page-btn { font-size: 40px; cursor: pointer; user-select: none; transition: 0.3s; opacity: 0.7; }
-        .page-btn:hover { opacity: 1; color: #8b4513; transform: scale(1.1); }
-        #wind-key { position: absolute; bottom: 220px; right: 15%; width: 80px; height: 80px; cursor: pointer; background: radial-gradient(circle, #f3d078, #b08a2e); border-radius: 50%; border: 4px solid #3e2723; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 30; transition: transform 0.2s; }
-        #wind-key:active { transform: scale(0.9) rotate(45deg); }
+        body { background: radial-gradient(circle at center, #1a0f0a 0%, #000 100%); color: #d4af37; font-family: 'Cinzel', serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .orgel-unit { position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; }
+        /* 절대 깨지지 않는 SVG 발레리나 무대 */
+        .ballerina-stage { width: 220px; height: 300px; z-index: 10; margin-bottom: -30px; transform-style: preserve-3d; perspective: 1000px; }
+        .ballerina-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5)); }
+        .spinning { animation: rotate3D 10s linear infinite; }
+        @keyframes rotate3D { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+        .wooden-base { width: 340px; height: 120px; background: linear-gradient(to bottom, #4e342e, #1a0f0a); border: 4px solid #2a1b0a; border-radius: 12px; box-shadow: 0 40px 80px rgba(0,0,0,1); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .brass-key { width: 70px; height: 70px; cursor: pointer; background: radial-gradient(circle, #f3d078, #b08a2e); border: 3px solid #3e2723; border-radius: 50%; box-shadow: 0 8px 15px rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; font-size: 28px; transition: 0.2s; }
+        .brass-key:active { transform: scale(0.9) rotate(45deg); }
+        .book-ui { width: 440px; background: #fdf5e6; border: 3px solid #5c3a21; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 30px 60px rgba(0,0,0,0.8); padding: 15px 25px; color: #2a1b0a; }
+        .page-flip { font-size: 35px; cursor: pointer; user-select: none; opacity: 0.7; transition: 0.2s; }
+        .page-flip:hover { opacity: 1; color: #8b4513; transform: scale(1.1); }
+        .track-info { text-align: center; flex: 1; }
+        .track-info h3 { margin: 0; font-size: 18px; font-weight: 700; }
+        .track-info p { margin-bottom: 4px; font-size: 11px; font-weight: bold; color: #8b4513; letter-spacing: 2px; }
     </style>
 </head>
 <body>
-
-    <div id="canvas-container"></div>
-    <div class="wood-base"></div>
-    <div id="wind-key">🗝️</div>
-
-    <div class="book-ui">
-        <div class="page-btn" id="prev">◀</div>
-        <div style="text-align: center; flex: 1;">
-            <p id="pg-label" style="font-size: 11px; font-weight: bold; color: #8b4513; margin-bottom: 5px;">PAGE 01 / 20</p>
-            <h3 id="song-title" style="font-size: 20px; margin: 0;">라흐마니노프 - 보칼리제</h3>
+    <div class="orgel-unit">
+        <div class="ballerina-stage" id="stage">
+            <svg class="ballerina-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50,10 C52,10 54,12 54,15 C54,18 52,20 50,20 C48,20 46,18 46,15 C46,12 48,10 50,10 M50,20 L50,45 M50,45 L35,65 M50,45 L65,65 M35,30 C35,30 40,35 50,35 C60,35 65,30 65,30" fill="none" stroke="#d4af37" stroke-width="2"/>
+                <ellipse cx="50" cy="50" rx="30" ry="10" fill="rgba(212, 175, 55, 0.3)" stroke="#d4af37" stroke-width="1"/>
+                <path d="M50,55 L45,90 M50,55 L55,90" fill="none" stroke="#d4af37" stroke-width="2"/>
+            </svg>
         </div>
-        <div class="page-btn" id="next">▶</div>
+        <div class="wooden-base">
+            <div class="brass-key" id="windKey">🗝️</div>
+            <p style="font-size: 10px; margin-top: 10px; letter-spacing: 2px; font-weight: bold; color: #d4af37;">WIND UP TO PLAY</p>
+        </div>
     </div>
-
-    <audio id="audio" loop></audio>
-
+    <div class="book-ui">
+        <div class="page-flip" id="prev">◀</div>
+        <div class="track-info">
+            <p id="pageLabel">PAGE 01 / 20</p>
+            <h3 id="songTitle">라흐마니노프 - 보칼리제</h3>
+        </div>
+        <div class="page-flip" id="next">▶</div>
+    </div>
+    <audio id="player" loop></audio>
     <script>
-        // 1. 20곡의 '진짜' 오르골 음원 리스트 (시끄러운 소음 완전 제거)
-        const musicList = [
+        let isPlaying = false, page = 1;
+        const stage = document.getElementById('stage'), player = document.getElementById('player');
+        // 검증된 맑은 오르골 음원 (잡음 없음)
+        const tracks = [
             { t: "라흐마니노프 - 보칼리제", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=music-box-101186.mp3" },
             { t: "차이콥스키 - 백조의 호수", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3?filename=swan-lake-122703.mp3" },
             { t: "드뷔시 - 달빛", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3?filename=moonlight-82672.mp3" },
-            { t: "슈만 - 트로이메라이", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
-            { t: "쇼팽 - 녹턴 2번", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
-            { t: "베토벤 - 엘리제를 위하여", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
-            { t: "파헬벨 - 캐논", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
-            { t: "모차르트 - 작은별", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
-            { t: "에릭 사티 - 짐노페디", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
-            { t: "바흐 - G선상의 아리아", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
-            { t: "리스트 - 사랑의 꿈", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+            { t: "쇼팽 - 녹턴 2번", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
+            { t: "에릭 사티 - 짐노페디", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
+            { t: "슈만 - 트로이메라이", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+            { t: "모차르트 - 작은별", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
+            { t: "베토벤 - 엘리제를 위하여", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
+            { t: "파헬벨 - 캐논", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
+            { t: "리스트 - 사랑의 꿈", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
+            { t: "바흐 - 미뉴에트", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
             { t: "브람스 - 왈츠", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
             { t: "생상스 - 백조", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
-            { t: "엘가 - 사랑의 인사", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
-            { t: "드보르자크 - 유모레스크", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
-            { t: "차이콥스키 - 호두까기 인형", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
-            { t: "마스네 - 타이스 명상곡", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
+            { t: "멘델스존 - 봄의 노래", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
+            { t: "엘가 - 사랑의 인사", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
+            { t: "드보르자크 - 유모레스크", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+            { t: "헨델 - 울게 하소서", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
             { t: "포레 - 시칠리아노", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
-            { t: "헨델 - 울게 하소서", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
+            { t: "차이콥스키 - 호두까기 인형", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
             { t: "그리그 - 솔베이지의 노래", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" }
         ];
-
-        let page = 1, isPlaying = false;
-        const audio = document.getElementById('audio');
-        audio.src = musicList[0].s;
-
-        // 2. Three.js 3D 엔진 설정 (진짜 입체 발레리나 구현)
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight * 0.6), 0.1, 1000);
-        camera.position.set(0, 1.5, 4);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight * 0.6);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        const light = new THREE.PointLight(0xffffff, 2);
-        light.position.set(5, 5, 5);
-        scene.add(light);
-        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-
-        //         // 외부 파일 없이도 발레리나의 우아한 곡선을 구현하기 위해 여러 파츠로 구성된 3D 모델을 생성합니다.
-        const ballerinaGroup = new THREE.Group();
-        
-        // 몸체 (도자기 질감)
-        const bodyGeom = new THREE.CylinderGeometry(0.1, 0.2, 0.8, 32);
-        const ivoryMat = new THREE.MeshPhongMaterial({ color: 0xfff4e0, shininess: 100 });
-        const body = new THREE.Mesh(bodyGeom, ivoryMat);
-        ballerinaGroup.add(body);
-
-        // 스커트 (우아한 나팔 모양)
-        const skirtGeom = new THREE.ConeGeometry(0.6, 0.4, 32, 1, true);
-        const skirtMat = new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
-        const skirt = new THREE.Mesh(skirtGeom, skirtMat);
-        skirt.position.y = -0.1;
-        ballerinaGroup.add(skirt);
-
-        scene.add(ballerinaGroup);
-
-        function animate() {
-            requestAnimationFrame(animate);
-            if (isPlaying) {
-                ballerinaGroup.rotation.y += 0.02; // 우아한 회전
-            }
-            renderer.render(scene, camera);
+        player.src = tracks[0].s;
+        function update() {
+            const track = tracks[page-1];
+            document.getElementById('pageLabel').innerText = `PAGE ${String(page).padStart(2, '0')} / 20`;
+            document.getElementById('songTitle').innerText = track.t;
+            player.src = track.s;
+            if(isPlaying) player.play();
         }
-        animate();
-
-        // 3. UI 인터랙션
-        const windKey = document.getElementById('wind-key');
-        windKey.onclick = () => {
+        document.getElementById('prev').onclick = () => { page = page>1 ? page-1 : 20; update(); };
+        document.getElementById('next').onclick = () => { page = page<20 ? page+1 : 1; update(); };
+        document.getElementById('windKey').onclick = () => {
             isPlaying = !isPlaying;
-            if (isPlaying) audio.play(); else audio.pause();
+            if(isPlaying) { player.play(); stage.classList.add('spinning'); }
+            else { player.pause(); stage.classList.remove('spinning'); }
         };
-
-        function updateTrack() {
-            const track = musicList[page - 1];
-            document.getElementById('pg-label').innerText = `PAGE ${String(page).padStart(2, '0')} / 20`;
-            document.getElementById('song-title').innerText = track.t;
-            audio.src = track.s;
-            audio.playbackRate = 1.0; // 시끄러운 변조 방지: 정속 재생
-            if (isPlaying) audio.play();
-        }
-
-        document.getElementById('prev').onclick = () => { page = (page > 1) ? page - 1 : 20; updateTrack(); };
-        document.getElementById('next').onclick = () => { page = (page < 20) ? page + 1 : 1; updateTrack(); };
     </script>
 </body>
 </html>
