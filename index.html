@@ -102,9 +102,9 @@
     </div>
 
     <script>
-        // [GPT Fix] ID 관리 및 음악 단일 재생 설정
+        // [GPT Fix] ID 관리 및 데이터 연결 안정화
         let db, cardIDs = [], currentAudio = null;
-        const dbName = "AuraGolStableMuseumFinalDB";
+        const dbName = "AuraGolFinalStableMuseumDB";
         const request = indexedDB.open(dbName, 1);
 
         request.onupgradeneeded = e => {
@@ -124,7 +124,7 @@
             tx.objectStore("slots").openCursor().onsuccess = e => {
                 const cursor = e.target.result;
                 if(cursor) { renderCard(cursor.value); cardIDs.push(cursor.value.id); cursor.continue(); }
-                // [GPT Fix] cardIDs로 안전하게 렌더링 체크 (6283.jpg 방지)
+                // [GPT Fix] cardIDs를 활용해 안전하게 렌더링 체크 (6283.jpg 방지)
                 else if (cardIDs.length === 0) addNewCard();
             };
         }
