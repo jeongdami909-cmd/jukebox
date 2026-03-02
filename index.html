@@ -30,14 +30,14 @@
 
         .top-nav { position: fixed; top: 30px; display: flex; gap: 8px; z-index: 2000; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 500px; padding: 0 10px;}
 
-        /* 🔥 추가된 검색창 스타일 */
+        /* 🔥 단어 검색을 위해 검색창 너비만 살짝 100px로 늘렸습니다. 다른 건 그대로! */
         .search-box {
             display: flex; gap: 4px; align-items: center;
         }
         .search-input {
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
             color: rgba(255, 255, 255, 0.8); padding: 4px 10px; border-radius: 12px; font-size: 8px;
-            backdrop-filter: blur(5px); width: 60px; text-align: center; outline: none; font-family: 'Cinzel', serif;
+            backdrop-filter: blur(5px); width: 100px; text-align: center; outline: none; font-family: 'Cinzel', serif;
         }
         .search-input::placeholder { color: rgba(255, 255, 255, 0.2); }
 
@@ -58,7 +58,7 @@
             width: min(95vw, 550px); flex: 1; 
             overflow-y: auto; overflow-x: hidden;
             padding: 40px 0; display: flex; flex-direction: column; gap: 60px; 
-            scroll-behavior: smooth; /* 🔥 스크롤 이동 시 부드럽게 가도록 추가 */
+            scroll-behavior: smooth; 
         }
         
         .board-area::after {
@@ -71,7 +71,7 @@
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); 
             border-radius: 30px; 
             display: flex; flex-direction: column;
-            scroll-margin-top: 20px; /* 🔥 검색해서 이동할 때 위쪽 여백 확보 */
+            scroll-margin-top: 20px; 
         }
 
         .shutter-cover {
@@ -127,7 +127,7 @@
         <button class="ghost-btn" id="bgFixBtn" onclick="toggleBGFix()">FIX BG: ON</button>
         
         <div class="search-box">
-            <input type="number" id="searchInput" class="search-input" placeholder="NO." onkeypress="if(event.key === 'Enter') searchCard()">
+            <input type="text" id="searchInput" class="search-input" placeholder="NO. / WORD" onkeypress="if(event.key === 'Enter') searchCard()">
             <button class="ghost-btn" onclick="searchCard()">GO</button>
         </div>
     </div>
@@ -208,7 +208,8 @@
                     </div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                        <span class="faint-white">#${data.id} ARCHIVE</span> <div style="display: flex; gap: 5px;">
+                        <span class="faint-white">#${data.id} ARCHIVE</span>
+                        <div style="display: flex; gap: 5px;">
                             <button class="ghost-btn" style="font-size: 5px;" onclick="document.getElementById('text-${data.id}').focus()">EDIT TEXT</button>
                             <button class="ghost-btn fix-text ${data.fixed && data.fixed.text ? 'active' : ''}" style="font-size: 5px;" onclick="fixElement(${data.id}, 'text')">FIX TEXT</button>
                             <button class="ghost-btn" style="font-size: 5px;" onclick="toggleShutter(${data.id})">OPEN VIEW</button>
@@ -239,29 +240,44 @@
             renderCard(data); 
         }
 
-        // 🔥 추가된 검색 로직
+        // 🔥 번호와 단어 모두 검색 가능하도록 업그레이드된 로직
         function searchCard() {
-            const inputVal = document.getElementById('searchInput').value;
+            const inputVal = document.getElementById('searchInput').value.trim().toLowerCase();
             if(!inputVal) return;
             
-            const targetId = `card-${inputVal}`;
-            const targetCard = document.getElementById(targetId);
+            let targetCard = null;
+
+            // 1. 번호로 입력했는지 먼저 확인 (정확한 ID 매칭)
+            if (!isNaN(inputVal) && inputVal !== '') {
+                targetCard = document.getElementById(`card-${inputVal}`);
+            }
+
+            // 2. 번호로 못 찾았거나 단어를 입력했다면 내용(텍스트)에서 찾기
+            if (!targetCard) {
+                const allTexts = document.querySelectorAll('.desc-text');
+                for (let i = 0; i < allTexts.length; i++) {
+                    // 글 내용 중에 검색한 단어가 포함되어 있다면
+                    if (allTexts[i].innerText.toLowerCase().includes(inputVal)) {
+                        targetCard = allTexts[i].closest('.shutter-card'); // 해당 게시판 선택
+                        break; // 가장 먼저 일치하는 게시판 하나만 찾고 종료
+                    }
+                }
+            }
             
+            // 3. 찾은 게시판으로 스크롤 이동
             if(targetCard) {
-                // 1. 패널 닫혀있으면 열기
                 document.getElementById('mainPanel').classList.add('is-open');
                 
-                // 2. 패널 열리는 애니메이션(0.8s)을 살짝 기다렸다가 해당 카드로 스크롤
                 setTimeout(() => {
                     targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    // 찾은 카드 깜빡이는 효과 (선택사항, 지워도 무방)
+                    // 시각적으로 찾았다는 걸 알 수 있게 살짝 반짝임 효과
                     targetCard.style.boxShadow = "0 0 20px rgba(255,255,255,0.5)";
                     setTimeout(() => targetCard.style.boxShadow = "none", 1500);
                 }, 300);
                 
-                document.getElementById('searchInput').value = ''; // 입력창 비우기
+                document.getElementById('searchInput').value = ''; // 이동 후 검색창 비우기
             } else {
-                alert("존재하지 않는 번호입니다.");
+                alert("일치하는 번호나 내용이 없습니다.");
             }
         }
 
