@@ -1,166 +1,208 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crystal Scroll Archive</title>
+    <title>Crystal Sliding Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
 
         * { box-sizing: border-box; }
-        
-        /* 스크롤바 디자인 */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
 
         body {
-            margin: 0; padding: 0;
-            min-height: 100vh;
+            margin: 0; padding: 0; min-height: 100vh;
             font-family: 'Cinzel', 'Noto Serif KR', serif;
-            background-size: cover; background-position: center; background-attachment: fixed;
-            /* 기본 배경 사진 */
+            background: #000 fixed center/cover no-repeat;
+            /* 배경 사진을 여기에 업로드하여 확인하세요 */
             background-image: url('https://images.unsplash.com/photo-1516478950587-8d076cd771ad?q=80&w=2070');
-            background-color: #000;
             display: flex; flex-direction: column; align-items: center;
-            overflow-y: auto; /* 위아래 스크롤 가능 */
             overflow-x: hidden;
         }
 
-        /* 상단 네비게이션 (고정 버튼 제거) */
-        .top-nav { position: fixed; top: 20px; right: 20px; z-index: 1000; }
-        .mini-btn {
+        /*  */
+
+        /* 상단 네비게이션 */
+        .nav-bar { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; }
+        .btn-xs {
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.5); padding: 6px 14px; border-radius: 20px;
+            color: rgba(255, 255, 255, 0.5); padding: 5px 12px; border-radius: 15px;
             font-size: 8px; cursor: pointer; backdrop-filter: blur(10px);
-            letter-spacing: 2px; text-transform: uppercase; transition: 0.3s;
-        }
-        .mini-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-
-        /* 전체를 감싸는 투명 보드 영역 */
-        .main-container {
-            width: min(92vw, 520px);
-            margin-top: 60px; margin-bottom: 80px;
-            background: rgba(255, 255, 255, 0.01);
-            backdrop-filter: blur(20px);
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            display: flex; flex-direction: column; align-items: center;
-            padding: 30px 20px;
+            text-transform: uppercase; letter-spacing: 1.5px;
         }
 
-        /* 1. 메인 영상 칸 (스크롤 영역 안으로 이동) */
-        .main-video-box {
-            width: 100%; height: 320px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; position: relative; margin-bottom: 40px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        /* 게시판 리스트 영역 */
+        .board-container {
+            width: min(92vw, 550px);
+            margin-top: 80px; margin-bottom: 50px;
+            display: flex; flex-direction: column; gap: 40px;
         }
-        .main-video-box:hover { background: rgba(255, 255, 255, 0.05); }
-        .main-video-box video, .main-video-box img { width: 100%; height: 100%; object-fit: cover; }
-        .hint-text { position: absolute; font-size: 8px; color: rgba(255,255,255,0.2); letter-spacing: 3px; text-transform: uppercase; }
 
-        /* 2. 하단 스크롤 게시판 */
-        .post-list { width: 100%; display: flex; flex-direction: column; gap: 25px; }
+        /* 슬라이딩 덮개식 게시판 카드 */
+        .shutter-card {
+            position: relative; width: 100%; height: 350px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
 
-        .card {
-            background: rgba(255, 255, 255, 0.05);
+        /* 뒤에 숨겨진 미디어 (사진/영상) */
+        .media-back {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; display: flex; align-items: center; justify-content: center;
+        }
+        .media-back video, .media-back img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* 옆으로 밀리는 덮개 (불투명 회색) */
+        .shutter-cover {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(40, 40, 40, 0.85); /* 불투명 엷은 회색 */
             backdrop-filter: blur(10px);
-            border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 20px; display: flex; flex-direction: column; gap: 15px;
+            z-index: 5; transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+            padding: 30px; display: flex; flex-direction: column;
+        }
+        
+        /* 덮개가 열린 상태 */
+        .shutter-card.open .shutter-cover { transform: translateX(92%); }
+
+        .desc-text {
+            color: rgba(255, 255, 255, 0.8); font-size: 12px; line-height: 1.8;
+            font-family: 'Noto Serif KR'; overflow-y: auto; flex: 1;
+            outline: none;
         }
 
-        .card-media {
-            width: 100%; height: 220px; background: rgba(0,0,0,0.1);
-            border-radius: 10px; overflow: hidden; display: flex; 
-            align-items: center; justify-content: center; cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        /* 하단 오디오 컨트롤 */
+        .audio-bar {
+            margin-top: 15px; display: flex; align-items: center; gap: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;
         }
 
-        .card-text {
-            color: rgba(255, 255, 255, 0.6); font-size: 11px;
-            line-height: 1.8; font-family: 'Noto Serif KR';
-            word-break: break-all; outline: none;
+        /* 플러스 버튼 */
+        .add-btn {
+            margin: 30px 0 100px; width: 50px; height: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%; color: #fff; font-size: 24px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.3s;
         }
+        .add-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
 
         input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <label class="mini-btn">SET BG<input type="file" id="bgIn" accept="image/*"></label>
+    <div class="nav-bar">
+        <label class="btn-xs">SET BG<input type="file" id="bgIn" accept="image/*"></label>
     </div>
 
-    <div class="main-container">
-        
-        <div class="main-video-box" id="mainZone" onclick="document.getElementById('mainFile').click()">
-            <p class="hint-text" id="mainHint">Main Media Display</p>
-            <input type="file" id="mainFile" accept="video/*,image/*">
-        </div>
-
-        <p style="font-size: 7px; color: rgba(255,255,255,0.3); margin-bottom: 20px; letter-spacing: 5px; text-transform: uppercase;">Memory Archives</p>
-
-        <div class="post-list" id="postList">
-            <script>
-                for(let i=1; i<=20; i++) {
-                    document.write(`
-                        <div class="card">
-                            <div class="card-media" onclick="triggerPostUpload(${i})">
-                                <div id="pre-${i}" style="font-size:7px; color:rgba(255,255,255,0.15); letter-spacing:1px;">ADD MEDIA #${String(i).padStart(2, '0')}</div>
-                                <input type="file" id="f-${i}" accept="image/*,video/*" onchange="loadCardMedia(event, ${i})">
-                            </div>
-                            <div class="card-text" contenteditable="true">
-                                #${String(i).padStart(2, '0')} Archive. 이곳에 당신의 기록을 남겨주세요. 글이 길어지면 카드가 아래로 늘어나며 전체 페이지를 발밑까지 채우게 됩니다.
-                            </div>
-                        </div>
-                    `);
-                }
-            </script>
+    <div class="board-container" id="boardList">
+        <div class="shutter-card" id="card-1">
+            <div class="media-back" id="media-1" onclick="triggerUpload(1, 'media')">
+                <p style="font-size: 8px; color: rgba(255,255,255,0.2); letter-spacing: 2px;">CLICK TO ADD MEDIA</p>
+            </div>
+            <div class="shutter-cover">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span style="font-size: 9px; color: #d4af37; letter-spacing: 3px;">#01 ARCHIVE</span>
+                    <button class="btn-xs" onclick="toggleShutter(1)">OPEN / CLOSE</button>
+                </div>
+                <div class="desc-text" contenteditable="true">
+                    이곳에 해설을 입력하세요. 덮개는 불투명한 회색이며, 우측 상단 버튼을 누르면 옆으로 밀리면서 사진이나 영상이 나타납니다.
+                </div>
+                <div class="audio-bar">
+                    <button class="btn-xs" onclick="triggerUpload(1, 'audio')">SET AUDIO</button>
+                    <button class="btn-xs" id="play-1" onclick="toggleAudio(1)">PLAY</button>
+                    <audio id="player-1" loop></audio>
+                </div>
+            </div>
+            <input type="file" id="media-in-1" accept="image/*,video/*" onchange="loadMedia(event, 1)">
+            <input type="file" id="audio-in-1" accept="audio/*" onchange="loadAudio(event, 1)">
         </div>
     </div>
+
+    <div class="add-btn" onclick="addNewCard()">+</div>
 
     <script>
-        // 1. 배경 사진 변경
+        let cardCount = 1;
+
+        // 배경 설정
         document.getElementById('bgIn').onchange = (e) => {
             const f = e.target.files[0];
             if(f) document.body.style.backgroundImage = `url(${URL.createObjectURL(f)})`;
         };
 
-        // 2. 메인 미디어 업로드 (비디오/사진)
-        document.getElementById('mainFile').onchange = (e) => {
-            const f = e.target.files[0];
-            if(f) {
-                const url = URL.createObjectURL(f);
-                const zone = document.getElementById('mainZone');
-                document.getElementById('mainHint').style.display = 'none';
-                
-                if(f.type.startsWith('video')) {
-                    zone.innerHTML = `<video src="${url}" autoplay loop muted></video>`;
-                } else {
-                    zone.innerHTML = `<img src="${url}">`;
-                }
-            }
-        };
-
-        // 3. 게시판 개별 미디어 업로드
-        function triggerPostUpload(i) {
-            document.getElementById(`f-${i}`).click();
+        // 셔터 열고 닫기
+        function toggleShutter(id) {
+            document.getElementById(`card-${id}`).classList.toggle('open');
         }
 
-        function loadCardMedia(e, i) {
+        // 새 카드 추가 (무한 플러스)
+        function addNewCard() {
+            cardCount++;
+            const list = document.getElementById('boardList');
+            const newCard = document.createElement('div');
+            newCard.className = 'shutter-card';
+            newCard.id = `card-${cardCount}`;
+            newCard.innerHTML = `
+                <div class="media-back" id="media-${cardCount}" onclick="triggerUpload(${cardCount}, 'media')">
+                    <p style="font-size: 8px; color: rgba(255,255,255,0.2); letter-spacing: 2px;">CLICK TO ADD MEDIA</p>
+                </div>
+                <div class="shutter-cover">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span style="font-size: 9px; color: #d4af37; letter-spacing: 3px;">#${String(cardCount).padStart(2, '0')} ARCHIVE</span>
+                        <button class="btn-xs" onclick="toggleShutter(${cardCount})">OPEN / CLOSE</button>
+                    </div>
+                    <div class="desc-text" contenteditable="true">새로운 통찰을 기록하세요...</div>
+                    <div class="audio-bar">
+                        <button class="btn-xs" onclick="triggerUpload(${cardCount}, 'audio')">SET AUDIO</button>
+                        <button class="btn-xs" id="play-${cardCount}" onclick="toggleAudio(${cardCount})">PLAY</button>
+                        <audio id="player-${cardCount}" loop></audio>
+                    </div>
+                </div>
+                <input type="file" id="media-in-${cardCount}" accept="image/*,video/*" onchange="loadMedia(event, ${cardCount})">
+                <input type="file" id="audio-in-${cardCount}" accept="audio/*" onchange="loadAudio(event, ${cardCount})">
+            `;
+            list.appendChild(newCard);
+        }
+
+        // 업로드 트리거
+        function triggerUpload(id, type) {
+            document.getElementById(`${type}-in-${id}`).click();
+        }
+
+        // 미디어 로드
+        function loadMedia(e, id) {
             const f = e.target.files[0];
             if(f) {
                 const url = URL.createObjectURL(f);
-                const pre = document.getElementById(`pre-${i}`);
+                const back = document.getElementById(`media-${id}`);
                 if(f.type.startsWith('video')) {
-                    pre.innerHTML = `<video src="${url}" autoplay loop muted style="width:100%; height:100%; object-fit:cover;"></video>`;
+                    back.innerHTML = `<video src="${url}" autoplay loop muted></video>`;
                 } else {
-                    pre.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover;">`;
+                    back.innerHTML = `<img src="${url}">`;
                 }
             }
+        }
+
+        // 오디오 로드
+        function loadAudio(e, id) {
+            const f = e.target.files[0];
+            if(f) {
+                document.getElementById(`player-${id}`).src = URL.createObjectURL(f);
+                alert(`Audio for #${id} is ready.`);
+            }
+        }
+
+        // 오디오 토글
+        function toggleAudio(id) {
+            const p = document.getElementById(`player-${id}`);
+            const b = document.getElementById(`play-${id}`);
+            if(p.paused) { p.play(); b.innerText = "PAUSE"; }
+            else { p.pause(); b.innerText = "PLAY"; }
         }
     </script>
 </body>
