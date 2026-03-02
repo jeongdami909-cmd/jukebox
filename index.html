@@ -3,28 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA-GOL: The Swan Lake Orgel</title>
+    <title>AURA-GOL: Ballerina Masterpiece</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+KR:wght@300;400&display=swap');
-        
+
         body {
             background: radial-gradient(circle at center, #1a0f0a 0%, #000 100%);
-            color: #d4af37; font-family: 'Cinzel', serif;
+            color: #d4af37; font-family: 'Cinzel', 'Noto Serif KR', serif;
             margin: 0; overflow: hidden; height: 100vh;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* 1. 발레리나와 무대 */
-        .orgel-unit { position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; perspective: 1000px; }
+        /* 1. 발레리나 사진 무대 */
+        .orgel-unit { position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; }
 
-        .ballerina-sculpture {
-            height: 350px; z-index: 10; margin-bottom: -30px;
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.4)) contrast(1.1);
-            transform-style: preserve-3d; transition: transform 0.1s linear;
+        .ballerina-frame {
+            width: 280px; height: 380px;
+            z-index: 10; margin-bottom: -40px;
+            border: 4px solid #c5a059;
+            box-shadow: 0 0 30px rgba(197, 160, 89, 0.4);
+            overflow: hidden; background: #000;
+            transform-style: preserve-3d;
         }
 
-        .wooden-box {
+        /* 사용자님의 6256.jpg 사진이 들어갈 곳 */
+        #dancer-photo {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            filter: sepia(0.2) contrast(1.1);
+        }
+
+        /* 태엽 감으면 돌아가는 애니메이션 */
+        .spinning { animation: rotatePhoto 12s linear infinite; }
+        @keyframes rotatePhoto {
+            from { transform: perspective(1000px) rotateY(0deg); }
+            to { transform: perspective(1000px) rotateY(360deg); }
+        }
+
+        .wooden-base {
             width: 380px; height: 160px;
             background: linear-gradient(to bottom, #4e342e, #1a0f0a), url('https://www.transparenttextures.com/patterns/dark-wood.png');
             border: 6px solid #2a1b0a; border-radius: 12px;
@@ -32,15 +49,16 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* 2. 리얼 수동 태엽 */
-        #wind-key {
+        /* 2. 황동 태엽 버튼 */
+        .wind-up-key {
             width: 80px; height: 80px; cursor: pointer;
             background: radial-gradient(circle, #f3d078, #b08a2e);
             border: 4px solid #3e2723; border-radius: 50%;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.8), inset 0 3px 8px rgba(255,255,255,0.4);
             display: flex; align-items: center; justify-content: center; font-size: 32px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.8); transition: transform 0.2s;
+            transition: transform 0.2s;
         }
-        #wind-key:active { transform: scale(0.9) rotate(60deg); }
+        .wind-up-key:active { transform: scale(0.9) rotate(60deg); }
 
         /* 3. 20페이지 책 UI */
         .book-ui {
@@ -49,41 +67,44 @@
             box-shadow: 0 30px 60px rgba(0,0,0,0.8); padding: 15px 30px; color: #2a1b0a;
         }
 
-        .page-btn { font-size: 40px; cursor: pointer; user-select: none; opacity: 0.7; transition: 0.3s; }
-        .page-btn:hover { opacity: 1; color: #8b4513; transform: scale(1.1); }
+        .page-flip { font-size: 40px; cursor: pointer; user-select: none; opacity: 0.7; transition: 0.2s; }
+        .page-flip:hover { opacity: 1; color: #8b4513; transform: scale(1.1); }
 
         .track-info { text-align: center; flex: 1; }
-        .track-info h3 { margin: 0; font-size: 19px; font-weight: 700; }
+        .track-info h3 { margin: 0; font-size: 18px; font-weight: 700; }
         .track-info p { margin-bottom: 4px; font-size: 11px; font-weight: bold; color: #8b4513; letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
     <div class="orgel-unit">
-        <img id="dancer" class="ballerina-sculpture" src="https://i.ibb.co/6P0qXFh/ballerina-statue.png" alt="Swan Lake Ballerina">
+        <div class="ballerina-frame" id="photoFrame">
+            <img id="dancer-photo" src="6256.jpg" alt="Ballerina 6256" onerror="this.src='https://images.unsplash.com/photo-1516478950587-8d076cd771ad?q=80&w=800&auto=format&fit=crop'">
+        </div>
         <div class="wooden-box">
-            <div id="wind-key">🗝️</div>
+            <div class="wind-up-key" id="key">🗝️</div>
             <p style="font-size: 11px; margin-top: 15px; letter-spacing: 3px; font-weight: bold; color: #d4af37;">WIND UP TO PLAY</p>
         </div>
     </div>
 
     <div class="book-ui">
-        <div class="page-btn" id="prev">◀</div>
+        <div class="page-flip" id="prev">◀</div>
         <div class="track-info">
-            <p id="pg-label">PAGE 01 / 20</p>
-            <h3 id="song-title">차이콥스키 - 백조의 호수</h3>
+            <p id="pgLabel">PAGE 01 / 20</p>
+            <h3 id="songLabel">차이콥스키 - 백조의 호수</h3>
         </div>
-        <div class="page-flip page-btn" id="next">▶</div>
+        <div class="page-flip" id="next">▶</div>
     </div>
 
     <audio id="player" loop></audio>
 
     <script>
-        let energy = 0, angle = 0, page = 1, isPlaying = false;
-        const dancer = document.getElementById('dancer'), player = document.getElementById('player');
+        let energy = 0, page = 1, isPlaying = false;
+        const photoFrame = document.getElementById('photoFrame');
+        const player = document.getElementById('player');
 
-        // 100% 맑은 오르골(Music Box) 음원 20곡 리스트
-        const musicList = [
+        // 진짜 맑은 오르골 음원 20곡 리스트 (락 반주 절대 없음)
+        const tracks = [
             { t: "차이콥스키 - 백조의 호수", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3?filename=swan-lake-122703.mp3" },
             { t: "라흐마니노프 - 보칼리제", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=music-box-101186.mp3" },
             { t: "드뷔시 - 달빛", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3?filename=moonlight-82672.mp3" },
@@ -99,44 +120,43 @@
             { t: "생상스 - 백조", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
             { t: "멘델스존 - 봄의 노래", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
             { t: "엘가 - 사랑의 인사", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
-            { t: "드보르자크 - 신세계로부터", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+            { t: "드보르자크 - 유모레스크", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
             { t: "헨델 - 울게 하소서", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
             { t: "포레 - 시칠리아노", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
             { t: "차이콥스키 - 호두까기 인형", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
             { t: "그리그 - 솔베이지의 노래", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" }
         ];
 
-        player.src = musicList[0].s;
+        player.src = tracks[0].s;
 
-        // 곡 업데이트 함수
-        function updateTrack() {
-            const track = musicList[page-1];
-            document.getElementById('pg-label').innerText = `PAGE ${String(page).padStart(2, '0')} / 20`;
-            document.getElementById('song-title').innerText = track.t;
+        function update() {
+            const track = tracks[page-1];
+            document.getElementById('pgLabel').innerText = `PAGE ${String(page).padStart(2, '0')} / 20`;
+            document.getElementById('songLabel').innerText = track.t;
             player.src = track.s;
-            if(energy > 0) player.play();
+            if(isPlaying) player.play();
         }
 
-        document.getElementById('prev').onclick = () => { page = (page > 1) ? page - 1 : 20; updateTrack(); };
-        document.getElementById('next').onclick = () => { page = (page < 20) ? page + 1 : 1; updateTrack(); };
+        document.getElementById('prev').onclick = () => { page = (page > 1) ? page-1 : 20; update(); };
+        document.getElementById('next').onclick = () => { page = (page < 20) ? page+1 : 1; update(); };
 
-        // 태엽 감기 로직 (클릭할수록 에너지가 참)
-        document.getElementById('wind-key').onclick = () => {
-            energy = Math.min(energy + 35, 100);
-            if(!isPlaying) loop();
+        // 태엽 시스템
+        document.getElementById('key').onclick = () => {
+            energy = Math.min(energy + 30, 100);
+            if(!isPlaying) run();
         };
 
-        function loop() {
-            isPlaying = true;
-            player.play();
+        function run() {
+            isPlaying = true; player.play();
+            photoFrame.classList.add('spinning');
             const timer = setInterval(() => {
                 if(energy > 0) {
                     energy -= 0.15;
-                    angle += (energy / 25);
-                    dancer.style.transform = `rotateY(${angle}deg)`;
-                    player.playbackRate = Math.max(0.65, energy / 50); // 에너지가 적으면 음악이 느려짐
+                    player.playbackRate = Math.max(0.7, energy / 50); // 에너지 적으면 소리 느려짐 (리얼리티)
                 } else {
-                    energy = 0; isPlaying = false; player.pause(); clearInterval(timer);
+                    energy = 0; isPlaying = false; player.pause();
+                    photoFrame.classList.remove('spinning');
+                    clearInterval(timer);
                 }
             }, 50);
         }
