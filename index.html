@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA-GOL: Mechanical Crystal</title>
+    <title>AURA-GOL: Curtain of Memories</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
@@ -13,129 +13,128 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             font-family: 'Cinzel', 'Noto Serif KR', serif;
             background-size: cover; background-position: center; background-attachment: fixed;
-            background-image: url('https://images.unsplash.com/photo-1516478950587-8d076cd771ad?q=80&w=2070');
-            transition: background-image 0.5s ease;
+            background-color: #000;
         }
 
-        /* 1. 투명 골드 미러 프레임 */
-        .mirror-container {
-            position: relative; width: 500px; height: 720px;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            border-radius: 250px 250px 50px 50px;
-            border: 12px solid transparent;
+        /* 1. 유럽식 골드 프레임 (6263.jpg) */
+        .royal-mirror {
+            position: relative; width: 550px; height: 750px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border-radius: 275px 275px 50px 50px;
+            border: 15px solid transparent;
             border-image: linear-gradient(to bottom, #d4af37, #f3d078, #b08a2e) 1;
-            box-shadow: 0 0 50px rgba(212, 175, 55, 0.2), inset 0 0 80px rgba(255,255,255,0.05);
+            box-shadow: 0 0 60px rgba(212, 175, 55, 0.3);
             display: flex; flex-direction: column; align-items: center;
-            overflow: hidden;
+            overflow: hidden; z-index: 10;
         }
 
-        .media-center {
-            width: 85%; height: 50%; margin-top: 60px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 180px 180px 20px 20px;
-            overflow: hidden; display: flex; align-items: center; justify-content: center;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+        /* 2. 창문 & 커튼 시스템 */
+        .window-stage {
+            position: relative; width: 85%; height: 55%; margin-top: 55px;
+            border-radius: 200px 200px 20px 20px;
+            overflow: hidden; background: #111;
+            border: 2px solid rgba(212, 175, 55, 0.3);
         }
 
-        /* 2. 반투명 화이트 화장대 & 서랍 */
-        .vanity-glass {
+        #bgVideo { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 1; }
+
+        .curtain {
+            position: absolute; top: 0; width: 50%; height: 100%;
+            background: rgba(200, 200, 200, 0.4); /* 엷은 회색 반투명 */
+            backdrop-filter: blur(8px);
+            z-index: 5; transition: transform 2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+        }
+        .curtain-left { left: 0; border-right: 1px solid rgba(255,255,255,0.2); }
+        .curtain-right { right: 0; border-left: 1px solid rgba(255,255,255,0.2); }
+
+        /* 커튼이 열리는 상태 */
+        .opened .curtain-left { transform: translateX(-100%); }
+        .opened .curtain-right { transform: translateX(100%); }
+
+        /* 3. 반투명 화이트 화장대 & 서랍 */
+        .vanity-crystal {
             position: absolute; bottom: 0; width: 100%;
             background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
             display: flex; flex-direction: column; align-items: center;
-            padding-bottom: 25px;
+            padding-bottom: 30px; z-index: 20;
         }
 
-        .drawer-content {
+        .drawer-box {
             width: 95%; height: 0;
             display: flex; gap: 15px; overflow-x: auto;
-            transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: height 1s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .drawer-content.open { height: 190px; padding-top: 20px; border-top: 1px solid rgba(212, 175, 55, 0.4); }
+        .drawer-box.open { height: 180px; padding-top: 20px; border-top: 1px solid rgba(212, 175, 55, 0.5); }
 
-        /* 3. 돌아가는 황금 태엽 (핵심 기능) */
-        .wind-key-wrapper {
-            width: 80px; height: 80px; margin-top: -40px;
-            position: relative; z-index: 100;
-        }
-        
-        .wind-key {
+        /* 돌아가는 황금 태엽 */
+        .key-wrapper { width: 80px; height: 80px; margin-top: -40px; z-index: 100; }
+        .golden-key {
             width: 100%; height: 100%;
             background: radial-gradient(circle, #f3d078, #b08a2e);
-            border: 4px solid #1a0f0a; border-radius: 50%;
+            border: 3px solid #1a0f0a; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 35px; cursor: pointer;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            transition: transform 0.5s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transition: transform 0.6s ease;
         }
 
-        /* 태엽 회전 애니메이션 클래스 */
-        .key-rotating { transform: rotate(360deg); }
-
-        /* 에너지 게이지 (투명) */
-        .energy-gauge {
-            width: 120px; height: 4px; background: rgba(255,255,255,0.1);
-            margin-top: 10px; border-radius: 2px; overflow: hidden;
-        }
-        .energy-fill { width: 0%; height: 100%; background: #d4af37; transition: width 0.3s ease; }
-
-        /* 투명 버튼 & 슬롯 */
-        .glass-btn {
+        /* 4. 투명 버튼 & 스냅사진 슬롯 */
+        .ghost-btn {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #d4af37; padding: 12px 24px; border-radius: 40px;
-            font-size: 11px; cursor: pointer; backdrop-filter: blur(10px);
-            transition: all 0.3s; letter-spacing: 2px;
-        }
-        .glass-btn:hover { background: rgba(212, 175, 55, 0.15); border-color: #d4af37; }
-
-        .snap-slot {
-            min-width: 120px; height: 150px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px; cursor: pointer;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #d4af37; padding: 10px 20px; border-radius: 30px;
+            font-size: 11px; cursor: pointer; backdrop-filter: blur(5px);
             transition: 0.3s;
         }
-        .snap-slot:hover { border-color: #d4af37; background: rgba(255, 255, 255, 0.1); }
+        .ghost-btn:hover { background: rgba(212, 175, 55, 0.1); border-color: #d4af37; }
 
-        .top-nav { position: fixed; top: 40px; display: flex; gap: 20px; z-index: 1000; }
+        .snap-item {
+            min-width: 110px; height: 140px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        .menu-bar { position: fixed; top: 30px; display: flex; gap: 15px; z-index: 1000; }
         input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <label class="glass-btn">🖼️ 배경 사진 업로드<input type="file" id="bgIn" accept="image/*"></label>
-        <div class="glass-btn" id="fixBtn">🔒 화면 고정</div>
+    <div class="menu-bar">
+        <label class="ghost-btn">🌆 창밖 영상 업로드<input type="file" id="videoIn" accept="video/*"></label>
+        <label class="ghost-btn">🖼️ 배경 사진 업로드<input type="file" id="bgIn" accept="image/*"></label>
+        <div class="ghost-btn" id="lockBtn">🔒 사이트 고정</div>
     </div>
 
-    <div class="mirror-container" id="mainBox">
-        <h2 style="color: #d4af37; margin-top: 45px; letter-spacing: 12px; font-size: 18px; opacity: 0.8;">AURA-GOL</h2>
+    <div class="royal-mirror" id="mirrorMain">
+        <h2 style="color: #d4af37; margin-top: 40px; letter-spacing: 12px; font-size: 16px; opacity: 0.6;">AURA-GOL</h2>
         
-        <div class="media-center" id="mainMedia">
-            <p id="guide" style="color: rgba(212, 175, 55, 0.4); font-size: 11px; text-align: center; line-height: 2;">태엽을 돌려<br>서랍을 열어주세요</p>
+        <div class="window-stage" id="windowStage">
+            <video id="bgVideo" loop muted autoplay></video>
+            <div class="curtain curtain-left"></div>
+            <div class="curtain curtain-right"></div>
         </div>
 
-        <div class="vanity-glass">
-            <div class="wind-key-wrapper">
-                <div class="wind-key" id="theKey">🗝️</div>
+        <div class="vanity-crystal">
+            <div class="key-wrapper">
+                <div class="golden-key" id="windKey">🗝️</div>
             </div>
+            <p style="font-size: 9px; color: #d4af37; margin-top: 10px; font-weight: bold; letter-spacing: 3px;">WIND FOR THE VIEW</p>
             
-            <div class="energy-gauge"><div class="energy-fill" id="fill"></div></div>
-            <p style="font-size: 9px; color: #d4af37; margin-top: 8px; font-weight: bold; letter-spacing: 3px; opacity: 0.7;">MECHANICAL POWER</p>
-            
-            <div class="drawer-content" id="drawer">
+            <div class="drawer-box" id="drawer">
                 <script>
                     for(let i=1; i<=20; i++) {
                         document.write(`
-                            <div class="snap-slot" onclick="openUploader(${i})">
-                                <div id="v-pre-${i}" style="width:100%; height:100px; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#555; font-size:9px;">Empty Slot</div>
-                                <p style="margin-top:10px; font-size:10px; font-weight:bold; color:#d4af37;">PAGE ${String(i).padStart(2, '0')}</p>
-                                <input type="file" id="m-file-${i}" accept="image/*,video/*" onchange="previewMedia(event, ${i})">
-                                <input type="file" id="a-file-${i}" accept="audio/*" onchange="previewAudio(event, ${i})">
+                            <div class="snap-item" onclick="handleUpload(${i})">
+                                <div id="pre-${i}" style="width:100%; height:90px; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#444; font-size:8px;">No Data</div>
+                                <p style="margin-top:10px; font-size:9px; font-weight:bold; color:#d4af37;">SLOT ${String(i).padStart(2, '0')}</p>
+                                <input type="file" id="m-${i}" accept="image/*,video/*" onchange="previewMedia(event, ${i})">
+                                <input type="file" id="a-${i}" accept="audio/*" onchange="previewAudio(${i})">
                             </div>
                         `);
                     }
@@ -144,62 +143,46 @@
         </div>
     </div>
 
-    <audio id="player" loop></audio>
+    <audio id="orgelAudio" loop></audio>
 
     <script>
         let energy = 0;
-        let isFixed = false;
-        let rotationCount = 0;
-        const slots = Array(21).fill(null).map(() => ({ media: null, type: null, audio: null }));
+        let rot = 0;
+        const slots = Array(21).fill(null).map(() => ({ media: null, audio: null }));
 
-        // 1. 태엽 회전 및 서랍 열기
-        const key = document.getElementById('theKey');
-        const fill = document.getElementById('fill');
-        const drawer = document.getElementById('drawer');
-
-        key.onclick = () => {
-            // 태엽 회전 애니메이션
-            rotationCount += 360;
-            key.style.transform = `rotate(${rotationCount}deg)`;
-
-            // 에너지 충전
-            energy = Math.min(energy + 20, 100);
-            fill.style.width = energy + '%';
-
-            // 에너지가 100이 되면 서랍이 열림
-            if (energy >= 100) {
-                drawer.classList.add('open');
-                setTimeout(() => alert("서랍이 열렸습니다. 당신의 추억을 담아보세요."), 500);
-            }
+        // 1. 영상 및 배경 업로드
+        document.getElementById('videoIn').onchange = (e) => {
+            const f = e.target.files[0];
+            if(f) document.getElementById('bgVideo').src = URL.createObjectURL(f);
         };
-
-        // 2. 배경 설정
         document.getElementById('bgIn').onchange = (e) => {
             const f = e.target.files[0];
             if(f) document.body.style.backgroundImage = `url(${URL.createObjectURL(f)})`;
         };
 
-        // 3. 화면 고정
-        document.getElementById('fixBtn').onclick = () => {
-            isFixed = !isFixed;
-            const box = document.getElementById('mainBox');
-            if(isFixed) {
-                box.style.position = 'fixed'; box.style.top = '50%'; box.style.left = '50%';
-                box.style.transform = 'translate(-50%, -50%) scale(1.05)';
-                document.getElementById('lockBtn').innerText = "🔓 고정 해제";
-            } else {
-                box.style.position = 'relative'; box.style.top = 'auto'; box.style.left = 'auto';
-                box.style.transform = 'none';
-                document.getElementById('lockBtn').innerText = "🔒 화면 고정";
+        // 2. 태엽 감기 & 커튼/서랍 열기
+        const key = document.getElementById('windKey');
+        const stage = document.getElementById('windowStage');
+        const drawer = document.getElementById('drawer');
+
+        key.onclick = () => {
+            rot += 360;
+            key.style.transform = `rotate(${rot}deg)`;
+            energy += 25;
+
+            if(energy >= 100) {
+                stage.classList.add('opened'); // 커튼 열기
+                drawer.classList.add('open'); // 서랍 열기
+                energy = 100;
             }
         };
 
-        // 4. 업로드 및 연동
-        function openUploader(i) {
-            if(confirm(`PAGE ${i}에 넣을 사진/영상을 선택하시겠습니까?\n(취소 시 오디오 파일 선택)`)) {
-                document.getElementById(`m-file-${i}`).click();
+        // 3. 개별 스냅 업로드
+        function handleUpload(i) {
+            if(confirm(`SLOT ${i}에 사진/영상을 넣으시겠습니까?\n(취소 시 음악 선택)`)) {
+                document.getElementById(`m-${i}`).click();
             } else {
-                document.getElementById(`a-file-${i}`).click();
+                document.getElementById(`a-${i}`).click();
             }
         }
 
@@ -207,51 +190,27 @@
             const f = e.target.files[0];
             if(f) {
                 const url = URL.createObjectURL(f);
-                slots[i].media = url;
-                slots[i].type = f.type.startsWith('video') ? 'video' : 'image';
-                
-                const pre = document.getElementById(`v-pre-${i}`);
-                if(slots[i].type === 'video') {
+                const pre = document.getElementById(`pre-${i}`);
+                if(f.type.startsWith('video')) {
                     pre.innerHTML = `<video src="${url}" style="width:100%; height:100%; object-fit:cover;" muted autoplay loop></video>`;
                 } else {
                     pre.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover;">`;
                 }
-                updateMain(i);
             }
         }
 
-        function previewAudio(e, i) {
-            const f = e.target.files[0];
-            if(f) {
-                slots[i].audio = URL.createObjectURL(f);
-                alert(`PAGE ${i}의 오르골 음악이 준비되었습니다.`);
-                updateMain(i);
-            }
+        function previewAudio(i) {
+            alert(`${i}번 오르골 음악이 장착되었습니다.`);
         }
-
-        function updateMain(i) {
-            const main = document.getElementById('mainMedia');
-            document.getElementById('guide').style.display = 'none';
-            main.innerHTML = '';
-
-            if(slots[i].media) {
-                if(slots[i].type === 'video') {
-                    const v = document.createElement('video');
-                    v.src = slots[i].media; v.style.width='100%'; v.style.height='100%'; v.style.objectFit='cover';
-                    v.muted = true; v.autoplay = true; v.loop = true;
-                    main.appendChild(v);
-                } else {
-                    const img = document.createElement('img');
-                    img.src = slots[i].media; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
-                    main.appendChild(img);
-                }
-            }
-            if(slots[i].audio) {
-                const p = document.getElementById('player');
-                p.src = slots[i].audio;
-                p.play();
-            }
-        }
+        
+        // 고정 기능
+        document.getElementById('lockBtn').onclick = () => {
+            const main = document.getElementById('mirrorMain');
+            main.style.position = 'fixed';
+            main.style.top = '50%'; main.style.left = '50%';
+            main.style.transform = 'translate(-50%, -50%)';
+            alert("프레임이 화면 중앙에 고정되었습니다.");
+        };
     </script>
 </body>
 </html>
