@@ -13,97 +13,102 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             font-family: 'Cinzel', 'Noto Serif KR', serif;
             background-size: cover; background-position: center;
-            background-image: url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=2070&auto=format&fit=crop'); /* 기본 배경 */
+            background-attachment: fixed;
+            background-image: url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=2070&auto=format&fit=crop');
+            transition: background-image 0.5s ease;
         }
 
-        /* 1. 유럽식 골드 거울 프레임 */
+        /* 유럽식 골드 거울 프레임 */
         .mirror-frame {
-            position: relative; width: 600px; height: 750px;
-            border: 25px solid transparent;
+            position: relative; width: 480px; height: 650px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 15px solid transparent;
+            /* 6263.jpg의 골드 느낌을 살린 테두리 */
             border-image: url('https://www.transparenttextures.com/patterns/gold-dust.png') 30 stretch;
-            outline: 8px double #d4af37;
+            outline: 5px double #d4af37;
             box-shadow: 0 0 50px rgba(212, 175, 55, 0.4), inset 0 0 100px rgba(255,255,255,0.2);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
+            border-radius: 240px 240px 50px 50px;
             display: flex; flex-direction: column; align-items: center;
-            transition: all 0.5s;
+            transition: all 0.3s ease;
         }
 
-        /* 2. 반투명 화이트 화장대 & 서랍 */
-        .vanity-box {
-            position: absolute; bottom: 50px;
-            width: 80%; height: 180px;
-            background: rgba(255, 255, 255, 0.5); /* 반투명 화이트 */
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
+        /* 반투명 화이트 화장대 */
+        .vanity-table {
+            position: absolute; bottom: 0; width: 100%;
+            background: rgba(255, 255, 255, 0.4);
+            border-top: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 0 0 40px 40px;
             display: flex; flex-direction: column; align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: height 0.5s ease-in-out;
+            z-index: 20; padding-bottom: 20px;
         }
 
+        /* 스냅사진 서랍 */
         .drawer {
-            width: 90%; height: 0; /* 닫힌 상태 */
-            background: rgba(255, 255, 255, 0.3);
-            border-top: 1px solid #d4af37;
+            width: 95%; height: 0;
+            background: rgba(255, 255, 255, 0.2);
             overflow-x: auto; overflow-y: hidden;
-            display: flex; gap: 20px; padding: 0 20px;
-            transition: height 0.5s ease-in-out;
+            display: flex; gap: 15px; padding: 0 15px;
+            transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .drawer.open { height: 160px; padding-top: 15px; border-top: 1px solid #d4af37; }
 
-        .drawer.open { height: 140px; padding-top: 20px; }
-
-        /* 스냅 사진틀 */
-        .snap-frame {
-            min-width: 100px; height: 120px;
-            background: #fff; border: 4px solid #fff;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        .snap-slot {
+            min-width: 100px; height: 130px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 3px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 10px; color: #888; cursor: pointer;
+            cursor: pointer; transition: transform 0.2s;
         }
+        .snap-slot:hover { transform: translateY(-5px); border-color: #d4af37; }
 
-        /* 태엽 버튼 */
+        /* 황금 태엽 열쇠 */
         .wind-key {
-            width: 60px; height: 60px;
+            width: 70px; height: 70px;
             background: radial-gradient(circle, #f3d078, #b08a2e);
-            border: 3px solid #d4af37; border-radius: 50%;
+            border: 3px solid #3e2723; border-radius: 50%;
+            font-size: 30px; cursor: pointer; margin-top: -35px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 25px; cursor: pointer; margin-top: -30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 100; transition: transform 0.2s;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3); z-index: 30;
+            transition: transform 0.1s;
         }
-        .wind-key:active { transform: scale(0.9) rotate(90deg); }
+        .wind-key:active { transform: scale(0.9) rotate(45deg); }
 
-        /* 상단 컨트롤 버튼 */
-        .controls { position: fixed; top: 20px; left: 20px; display: flex; gap: 10px; }
-        .btn { background: rgba(212, 175, 55, 0.8); color: #fff; padding: 10px; border-radius: 5px; font-size: 12px; cursor: pointer; font-weight: bold; }
+        .top-controls { position: fixed; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 100; }
+        .control-btn { background: rgba(212, 175, 55, 0.9); color: #fff; padding: 10px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         
         input[type="file"] { display: none; }
+        .fixed-frame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <label class="btn">배경 사진 업로드<input type="file" id="bgUpload" accept="image/*"></label>
-        <div class="btn" onclick="toggleFix()">화면 고정/해제</div>
+    <div class="top-controls">
+        <label class="control-btn">🌆 배경 사진 업로드<input type="file" id="bgInput" accept="image/*"></label>
+        <div class="control-btn" id="fixBtn">📌 화면 고정</div>
     </div>
 
-    <div class="mirror-frame" id="mirror">
-        <h2 style="color: #d4af37; margin-top: 30px; letter-spacing: 5px;">AURA-GOL</h2>
+    <div class="mirror-frame" id="mainMirror">
+        <h1 style="color: #d4af37; margin-top: 40px; letter-spacing: 10px; font-size: 24px;">AURA-GOL</h1>
         
-        <div style="font-size: 40px; margin-top: 20px;">🦉</div>
+        <div style="width: 300px; height: 350px; margin-top: 30px; background: rgba(0,0,0,0.1); border-radius: 150px 150px 20px 20px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            <p id="mainInfo" style="color: #d4af37; font-size: 12px; text-align: center; font-style: italic;">태엽을 감아 서랍을 열고<br>음악을 선택해주세요</p>
+            <img id="mainImg" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+        </div>
 
-        <div class="vanity-box" id="vanity">
-            <div class="wind-key" id="windUp" title="태엽을 감으면 서랍이 열립니다">🗝️</div>
-            <p style="font-size: 10px; color: #d4af37; margin-top: 5px;">WIND UP DRAWER</p>
+        <div class="vanity-table" id="vanityTable">
+            <div class="wind-key" id="windUpKey">🗝️</div>
+            <p style="font-size: 10px; color: #3e2723; margin-top: 8px; font-weight: bold;">WIND UP FOR MEMORIES</p>
             
-            <div class="drawer" id="drawer">
+            <div class="drawer" id="snapDrawer">
                 <script>
                     for(let i=1; i<=20; i++) {
                         document.write(`
-                            <div class="snap-frame" onclick="uploadContent(${i})">
-                                <span id="snap-${i}">Photo ${i}</span>
-                                <input type="file" id="img-${i}" accept="image/*" onchange="previewImg(event, ${i})">
-                                <input type="file" id="audio-${i}" accept="audio/*" onchange="readyAudio(${i})">
+                            <div class="snap-slot" onclick="handleSnap(${i})">
+                                <div id="preview-${i}" style="width:100%; height:80px; background:#eee; display:flex; align-items:center; justify-content:center; font-size:10px; color:#aaa;">No Image</div>
+                                <div style="font-size:10px; margin-top:5px; font-weight:bold;">TRACK ${String(i).padStart(2, '0')}</div>
+                                <input type="file" id="img-${i}" accept="image/*" onchange="loadImg(event, ${i})">
+                                <input type="file" id="audio-${i}" accept="audio/*" onchange="loadAudio(event, ${i})">
                             </div>
                         `);
                     }
@@ -112,52 +117,81 @@
         </div>
     </div>
 
+    <audio id="masterPlayer" loop></audio>
+
     <script>
         let energy = 0;
         let isFixed = false;
+        const tracks = Array(21).fill(null).map(() => ({ img: null, audio: null }));
 
         // 배경 업로드
-        document.getElementById('bgUpload').addEventListener('change', (e) => {
+        document.getElementById('bgInput').onchange = (e) => {
             const file = e.target.files[0];
             if(file) document.body.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
-        });
+        };
 
-        // 태엽 감기
-        document.getElementById('windUp').addEventListener('click', () => {
+        // 화면 고정
+        document.getElementById('fixBtn').onclick = () => {
+            isFixed = !isFixed;
+            const mirror = document.getElementById('mainMirror');
+            if(isFixed) {
+                mirror.classList.add('fixed-frame');
+                document.getElementById('fixBtn').innerText = "🔓 고정 해제";
+            } else {
+                mirror.classList.remove('fixed-frame');
+                document.getElementById('fixBtn').innerText = "📌 화면 고정";
+            }
+        };
+
+        // 태엽 감기 (서랍 열기)
+        document.getElementById('windUpKey').onclick = () => {
             energy += 25;
             if(energy >= 100) {
-                document.getElementById('drawer').classList.add('open');
+                document.getElementById('snapDrawer').classList.add('open');
                 energy = 100;
             }
-        });
+        };
 
-        // 고정 토글
-        function toggleFix() {
-            isFixed = !isFixed;
-            document.getElementById('mirror').style.transform = isFixed ? 'scale(1.1)' : 'scale(1)';
-            alert(isFixed ? "프레임이 사이트에 고정되었습니다." : "고정이 해제되었습니다.");
-        }
-
-        // 스냅사진 및 오디오 업로드 로직
-        function uploadContent(num) {
-            if(confirm(`${num}번 스냅의 사진을 먼저 등록할까요? (취소 시 오디오 등록)`)) {
-                document.getElementById(`img-${num}`).click();
+        // 스냅 업로드 핸들러
+        function handleSnap(i) {
+            if(confirm(`Track ${i}의 사진을 먼저 등록할까요? (취소 시 음악 등록)`)) {
+                document.getElementById(`img-${i}`).click();
             } else {
-                document.getElementById(`audio-${num}`).click();
+                document.getElementById(`audio-${i}`).click();
             }
         }
 
-        function previewImg(e, num) {
+        function loadImg(e, i) {
             const file = e.target.files[0];
             if(file) {
                 const url = URL.createObjectURL(file);
-                document.getElementById(`snap-${num}`).innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover;">`;
+                tracks[i].img = url;
+                document.getElementById(`preview-${i}`).innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover;">`;
+                playTrack(i);
             }
         }
 
-        function readyAudio(num) {
-            alert(`${num}번 스냅의 음악이 준비되었습니다.`);
-            // 여기에 오디오 재생 객체 생성 로직 추가 가능
+        function loadAudio(e, i) {
+            const file = e.target.files[0];
+            if(file) {
+                tracks[i].audio = URL.createObjectURL(file);
+                alert(`Track ${i} 음악이 준비되었습니다.`);
+                playTrack(i);
+            }
+        }
+
+        function playTrack(i) {
+            if(tracks[i].img) {
+                document.getElementById('mainInfo').style.display = 'none';
+                const mainImg = document.getElementById('mainImg');
+                mainImg.src = tracks[i].img;
+                mainImg.style.display = 'block';
+            }
+            if(tracks[i].audio) {
+                const player = document.getElementById('masterPlayer');
+                player.src = tracks[i].audio;
+                player.play();
+            }
         }
     </script>
 </body>
