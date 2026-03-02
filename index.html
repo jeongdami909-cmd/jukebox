@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crystal Sliding Archive</title>
+    <title>Crystal Infinity Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
@@ -16,13 +16,10 @@
             margin: 0; padding: 0; min-height: 100vh;
             font-family: 'Cinzel', 'Noto Serif KR', serif;
             background: #000 fixed center/cover no-repeat;
-            /* 배경 사진을 여기에 업로드하여 확인하세요 */
             background-image: url('https://images.unsplash.com/photo-1516478950587-8d076cd771ad?q=80&w=2070');
             display: flex; flex-direction: column; align-items: center;
             overflow-x: hidden;
         }
-
-        /*  */
 
         /* 상단 네비게이션 */
         .nav-bar { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; }
@@ -33,63 +30,67 @@
             text-transform: uppercase; letter-spacing: 1.5px;
         }
 
-        /* 게시판 리스트 영역 */
+        /* 게시판 리스트 영역: 발밑까지 확장 */
         .board-container {
-            width: min(92vw, 550px);
-            margin-top: 80px; margin-bottom: 50px;
-            display: flex; flex-direction: column; gap: 40px;
+            width: min(95vw, 550px);
+            margin-top: 50px;
+            display: flex; flex-direction: column;
+            padding-bottom: 0; /* 하단 여백 제거 */
         }
 
-        /* 슬라이딩 덮개식 게시판 카드 */
+        /* 슬라이딩 셔터 카드 */
         .shutter-card {
-            position: relative; width: 100%; height: 350px;
+            position: relative; width: 100%; height: 400px;
             background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px; overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            border-bottom: none; /* 카드 사이 경계 최소화 */
         }
+        .shutter-card:last-of-type { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
 
-        /* 뒤에 숨겨진 미디어 (사진/영상) */
+        /* 뒤쪽 미디어 (사진/영상) */
         .media-back {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1; display: flex; align-items: center; justify-content: center;
+            background: #000;
         }
         .media-back video, .media-back img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* 옆으로 밀리는 덮개 (불투명 회색) */
+        /* 옆으로 밀리는 불투명 회색 덮개 */
         .shutter-cover {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(40, 40, 40, 0.85); /* 불투명 엷은 회색 */
-            backdrop-filter: blur(10px);
+            background: rgba(30, 30, 30, 0.9); /* 불투명 엷은 회색 */
+            backdrop-filter: blur(15px);
             z-index: 5; transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-            padding: 30px; display: flex; flex-direction: column;
+            padding: 25px; display: flex; flex-direction: column;
         }
         
-        /* 덮개가 열린 상태 */
-        .shutter-card.open .shutter-cover { transform: translateX(92%); }
+        /* 셔터 오픈 상태 */
+        .shutter-card.open .shutter-cover { transform: translateX(95%); }
 
         .desc-text {
-            color: rgba(255, 255, 255, 0.8); font-size: 12px; line-height: 1.8;
+            color: rgba(255, 255, 255, 0.7); font-size: 11px; line-height: 1.8;
             font-family: 'Noto Serif KR'; overflow-y: auto; flex: 1;
-            outline: none;
+            outline: none; margin-top: 10px;
         }
 
-        /* 하단 오디오 컨트롤 */
-        .audio-bar {
-            margin-top: 15px; display: flex; align-items: center; gap: 10px;
-            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;
+        /* 오디오 플레이어 칸 */
+        .audio-slot {
+            margin-top: 15px; display: flex; align-items: center; gap: 8px;
+            background: rgba(255, 255, 255, 0.03); padding: 8px; border-radius: 8px;
         }
 
-        /* 플러스 버튼 */
+        /* 무한 플러스 버튼: 사이트 맨 아래 고정 */
         .add-btn {
-            margin: 30px 0 100px; width: 50px; height: 50px;
+            width: 100%; height: 60px;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50%; color: #fff; font-size: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #d4af37; font-size: 20px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: 0.3s;
+            margin-bottom: 0;
         }
-        .add-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
+        .add-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
         input[type="file"] { display: none; }
     </style>
@@ -97,25 +98,25 @@
 <body>
 
     <div class="nav-bar">
-        <label class="btn-xs">SET BG<input type="file" id="bgIn" accept="image/*"></label>
+        <label class="btn-xs">BG UP<input type="file" id="bgIn" accept="image/*"></label>
     </div>
 
     <div class="board-container" id="boardList">
         <div class="shutter-card" id="card-1">
-            <div class="media-back" id="media-1" onclick="triggerUpload(1, 'media')">
-                <p style="font-size: 8px; color: rgba(255,255,255,0.2); letter-spacing: 2px;">CLICK TO ADD MEDIA</p>
+            <div class="media-back" id="media-1" onclick="triggerUp(1, 'media')">
+                <p style="font-size: 7px; color: rgba(255,255,255,0.2); letter-spacing: 2px;">CLICK TO ADD VIDEO/PHOTO</p>
             </div>
             <div class="shutter-cover">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <span style="font-size: 9px; color: #d4af37; letter-spacing: 3px;">#01 ARCHIVE</span>
-                    <button class="btn-xs" onclick="toggleShutter(1)">OPEN / CLOSE</button>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 8px; color: #d4af37; letter-spacing: 3px;">ARCHIVE #01</span>
+                    <button class="btn-xs" onclick="toggleShutter(1)">OPEN</button>
                 </div>
                 <div class="desc-text" contenteditable="true">
-                    이곳에 해설을 입력하세요. 덮개는 불투명한 회색이며, 우측 상단 버튼을 누르면 옆으로 밀리면서 사진이나 영상이 나타납니다.
+                    여기에 해설을 입력하세요. 이 불투명한 덮개는 옆으로 밀리며 뒤에 숨겨진 미디어를 보여줍니다. 게시판은 사이트 발밑까지 계속해서 추가됩니다.
                 </div>
-                <div class="audio-bar">
-                    <button class="btn-xs" onclick="triggerUpload(1, 'audio')">SET AUDIO</button>
-                    <button class="btn-xs" id="play-1" onclick="toggleAudio(1)">PLAY</button>
+                <div class="audio-slot">
+                    <button class="btn-xs" onclick="triggerUp(1, 'audio')">SET MUSIC</button>
+                    <button class="btn-xs" id="play-1" onclick="togglePlay(1)">PLAY</button>
                     <audio id="player-1" loop></audio>
                 </div>
             </div>
@@ -124,23 +125,23 @@
         </div>
     </div>
 
-    <div class="add-btn" onclick="addNewCard()">+</div>
+    <div class="add-btn" onclick="addNewCard()">+ ADD NEW MEMORY</div>
 
     <script>
         let cardCount = 1;
 
-        // 배경 설정
+        // 배경 업로드
         document.getElementById('bgIn').onchange = (e) => {
             const f = e.target.files[0];
             if(f) document.body.style.backgroundImage = `url(${URL.createObjectURL(f)})`;
         };
 
-        // 셔터 열고 닫기
+        // 셔터 토글
         function toggleShutter(id) {
             document.getElementById(`card-${id}`).classList.toggle('open');
         }
 
-        // 새 카드 추가 (무한 플러스)
+        // 무한 추가
         function addNewCard() {
             cardCount++;
             const list = document.getElementById('boardList');
@@ -148,18 +149,18 @@
             newCard.className = 'shutter-card';
             newCard.id = `card-${cardCount}`;
             newCard.innerHTML = `
-                <div class="media-back" id="media-${cardCount}" onclick="triggerUpload(${cardCount}, 'media')">
-                    <p style="font-size: 8px; color: rgba(255,255,255,0.2); letter-spacing: 2px;">CLICK TO ADD MEDIA</p>
+                <div class="media-back" id="media-${cardCount}" onclick="triggerUp(${cardCount}, 'media')">
+                    <p style="font-size: 7px; color: rgba(255,255,255,0.2); letter-spacing: 2px;">CLICK TO ADD VIDEO/PHOTO</p>
                 </div>
                 <div class="shutter-cover">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <span style="font-size: 9px; color: #d4af37; letter-spacing: 3px;">#${String(cardCount).padStart(2, '0')} ARCHIVE</span>
-                        <button class="btn-xs" onclick="toggleShutter(${cardCount})">OPEN / CLOSE</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 8px; color: #d4af37; letter-spacing: 3px;">ARCHIVE #${String(cardCount).padStart(2, '0')}</span>
+                        <button class="btn-xs" onclick="toggleShutter(${cardCount})">OPEN</button>
                     </div>
-                    <div class="desc-text" contenteditable="true">새로운 통찰을 기록하세요...</div>
-                    <div class="audio-bar">
-                        <button class="btn-xs" onclick="triggerUpload(${cardCount}, 'audio')">SET AUDIO</button>
-                        <button class="btn-xs" id="play-${cardCount}" onclick="toggleAudio(${cardCount})">PLAY</button>
+                    <div class="desc-text" contenteditable="true">새로운 기록을 남겨보세요...</div>
+                    <div class="audio-slot">
+                        <button class="btn-xs" onclick="triggerUp(${cardCount}, 'audio')">SET MUSIC</button>
+                        <button class="btn-xs" id="play-${cardCount}" onclick="togglePlay(${cardCount})">PLAY</button>
                         <audio id="player-${cardCount}" loop></audio>
                     </div>
                 </div>
@@ -167,38 +168,26 @@
                 <input type="file" id="audio-in-${cardCount}" accept="audio/*" onchange="loadAudio(event, ${cardCount})">
             `;
             list.appendChild(newCard);
+            window.scrollTo(0, document.body.scrollHeight); // 추가 시 아래로 자동 스크롤
         }
 
-        // 업로드 트리거
-        function triggerUpload(id, type) {
-            document.getElementById(`${type}-in-${id}`).click();
-        }
+        function triggerUp(id, type) { document.getElementById(`${type}-in-${id}`).click(); }
 
-        // 미디어 로드
         function loadMedia(e, id) {
             const f = e.target.files[0];
             if(f) {
                 const url = URL.createObjectURL(f);
                 const back = document.getElementById(`media-${id}`);
-                if(f.type.startsWith('video')) {
-                    back.innerHTML = `<video src="${url}" autoplay loop muted></video>`;
-                } else {
-                    back.innerHTML = `<img src="${url}">`;
-                }
+                back.innerHTML = f.type.startsWith('video') ? `<video src="${url}" autoplay loop muted></video>` : `<img src="${url}">`;
             }
         }
 
-        // 오디오 로드
         function loadAudio(e, id) {
             const f = e.target.files[0];
-            if(f) {
-                document.getElementById(`player-${id}`).src = URL.createObjectURL(f);
-                alert(`Audio for #${id} is ready.`);
-            }
+            if(f) document.getElementById(`player-${id}`).src = URL.createObjectURL(f);
         }
 
-        // 오디오 토글
-        function toggleAudio(id) {
+        function togglePlay(id) {
             const p = document.getElementById(`player-${id}`);
             const b = document.getElementById(`play-${id}`);
             if(p.paused) { p.play(); b.innerText = "PAUSE"; }
