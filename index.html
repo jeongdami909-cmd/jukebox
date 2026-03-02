@@ -269,4 +269,13 @@
         }
 
         async function deleteAudio(id) { if(confirm("Delete music?")) { const d = await getData("slots", id); d.audio = null; if(d.fixed) d.fixed.audio = false; await saveData("slots", d); document.getElementById(`player-${id}`).src = ""; document.querySelector(`#card-${id} .fix-audio`).classList.remove('active'); } }
-        async function deleteCard(id) { if(confirm("Delete slot?")) { const tx = db.transaction("slots", "readwrite"); tx.objectStore("slots").delete(id); document
+        async function deleteCard(id) { if(confirm("Delete slot?")) { const tx = db.transaction("slots", "readwrite"); tx.objectStore("slots").delete(id); document.getElementById(`card-${id}`).remove(); cardIDs = cardIDs.filter(x => x !== id); } }
+        function togglePanel() { document.getElementById('mainPanel').classList.toggle('is-open'); }
+        function toggleShutter(id) { document.getElementById(`card-${id}`).classList.toggle('open'); }
+        document.getElementById('bgIn').onchange = async e => { const f = e.target.files[0]; if(f) { await saveData("settings", { id: "bg", file: f }); location.reload(); } };
+        async function deleteBG() { if(confirm("Clear BG?")) { const tx = db.transaction("settings", "readwrite"); tx.objectStore("settings").delete("bg"); location.reload(); } }
+        function toggleBGFix() { isBGFixed = !isBGFixed; document.body.style.backgroundAttachment = isBGFixed ? "fixed" : "scroll"; document.getElementById('bgFixBtn').innerText = isBGFixed ? "FIX BG: ON" : "FIX BG: OFF"; }
+        async function clearText(id) { if(confirm("Clear text?")) { document.getElementById(`text-${id}`).innerText = ""; const d = await getData("slots", id); d.text = ""; await saveData("slots", d); } }
+    </script>
+</body>
+</html>
