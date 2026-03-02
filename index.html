@@ -3,155 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Custom Orgel</title>
+    <title>AURA-GOL: Royal Vanity</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #1a0f0a; color: #d4af37; font-family: serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+KR:wght@300;400&display=swap');
+
+        body {
+            margin: 0; padding: 0; min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-family: 'Cinzel', 'Noto Serif KR', serif;
+            background-size: cover; background-position: center;
+            background-image: url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=2070&auto=format&fit=crop'); /* 기본 배경 */
+        }
+
+        /* 1. 유럽식 골드 거울 프레임 */
+        .mirror-frame {
+            position: relative; width: 600px; height: 750px;
+            border: 25px solid transparent;
+            border-image: url('https://www.transparenttextures.com/patterns/gold-dust.png') 30 stretch;
+            outline: 8px double #d4af37;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.4), inset 0 0 100px rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            display: flex; flex-direction: column; align-items: center;
+            transition: all 0.5s;
+        }
+
+        /* 2. 반투명 화이트 화장대 & 서랍 */
+        .vanity-box {
+            position: absolute; bottom: 50px;
+            width: 80%; height: 180px;
+            background: rgba(255, 255, 255, 0.5); /* 반투명 화이트 */
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: height 0.5s ease-in-out;
+        }
+
+        .drawer {
+            width: 90%; height: 0; /* 닫힌 상태 */
+            background: rgba(255, 255, 255, 0.3);
+            border-top: 1px solid #d4af37;
+            overflow-x: auto; overflow-y: hidden;
+            display: flex; gap: 20px; padding: 0 20px;
+            transition: height 0.5s ease-in-out;
+        }
+
+        .drawer.open { height: 140px; padding-top: 20px; }
+
+        /* 스냅 사진틀 */
+        .snap-frame {
+            min-width: 100px; height: 120px;
+            background: #fff; border: 4px solid #fff;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 10px; color: #888; cursor: pointer;
+        }
+
+        /* 태엽 버튼 */
+        .wind-key {
+            width: 60px; height: 60px;
+            background: radial-gradient(circle, #f3d078, #b08a2e);
+            border: 3px solid #d4af37; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 25px; cursor: pointer; margin-top: -30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 100; transition: transform 0.2s;
+        }
+        .wind-key:active { transform: scale(0.9) rotate(90deg); }
+
+        /* 상단 컨트롤 버튼 */
+        .controls { position: fixed; top: 20px; left: 20px; display: flex; gap: 10px; }
+        .btn { background: rgba(212, 175, 55, 0.8); color: #fff; padding: 10px; border-radius: 5px; font-size: 12px; cursor: pointer; font-weight: bold; }
         
-        /* 사진/영상이 돌아가는 무대 */
-        .stage { perspective: 1000px; margin-bottom: 30px; }
-        .visual-frame {
-            width: 250px; height: 350px;
-            border: 5px solid #c5a059; border-radius: 10px;
-            background: #000; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            transform-style: preserve-3d;
-        }
-
-        /* 파일 업로드 버튼 스타일 */
-        .upload-box { background: #3e2723; border: 2px dashed #c5a059; padding: 15px; border-radius: 10px; width: 320px; text-align: center; margin-bottom: 20px; }
         input[type="file"] { display: none; }
-        .file-btn { background: #c5a059; color: #1a0f0a; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; display: inline-block; }
-
-        /* 태엽과 에너지 바 */
-        .wind-up-zone { text-align: center; width: 320px; }
-        .key-btn { 
-            width: 80px; height: 80px; background: radial-gradient(circle, #f3d078, #b08a2e); 
-            border: 4px solid #3e2723; border-radius: 50%; font-size: 35px; cursor: pointer;
-            margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.6); transition: 0.1s;
-        }
-        .key-btn:active { transform: scale(0.9) rotate(45deg); }
-        .energy-bar-bg { width: 100%; height: 10px; background: #3e2723; border-radius: 5px; overflow: hidden; border: 1px solid #c5a059; }
-        .energy-fill { width: 0%; height: 100%; background: #f3d078; transition: width 0.1s linear; }
     </style>
 </head>
 <body>
 
-    <div class="stage">
-        <div class="visual-frame" id="visualFrame">
-            <p style="color: #666; font-size: 14px; text-align: center;">사진이나 영상을<br>업로드해주세요</p>
+    <div class="controls">
+        <label class="btn">배경 사진 업로드<input type="file" id="bgUpload" accept="image/*"></label>
+        <div class="btn" onclick="toggleFix()">화면 고정/해제</div>
+    </div>
+
+    <div class="mirror-frame" id="mirror">
+        <h2 style="color: #d4af37; margin-top: 30px; letter-spacing: 5px;">AURA-GOL</h2>
+        
+        <div style="font-size: 40px; margin-top: 20px;">🦉</div>
+
+        <div class="vanity-box" id="vanity">
+            <div class="wind-key" id="windUp" title="태엽을 감으면 서랍이 열립니다">🗝️</div>
+            <p style="font-size: 10px; color: #d4af37; margin-top: 5px;">WIND UP DRAWER</p>
+            
+            <div class="drawer" id="drawer">
+                <script>
+                    for(let i=1; i<=20; i++) {
+                        document.write(`
+                            <div class="snap-frame" onclick="uploadContent(${i})">
+                                <span id="snap-${i}">Photo ${i}</span>
+                                <input type="file" id="img-${i}" accept="image/*" onchange="previewImg(event, ${i})">
+                                <input type="file" id="audio-${i}" accept="audio/*" onchange="readyAudio(${i})">
+                            </div>
+                        `);
+                    }
+                </script>
+            </div>
         </div>
     </div>
-
-    <div class="upload-box">
-        <label class="file-btn">
-            📷 사진/영상 넣기
-            <input type="file" id="mediaInput" accept="image/*,video/*">
-        </label>
-        <label class="file-btn">
-            🎵 오르골 소리 넣기
-            <input type="file" id="audioInput" accept="audio/*">
-        </label>
-        <p id="file-status" style="font-size: 12px; margin-top: 10px; color: #aaa;">파일을 기다리는 중...</p>
-    </div>
-
-    <div class="wind-up-zone">
-        <div class="key-btn" id="windKey">🗝️</div>
-        <div class="energy-bar-bg">
-            <div class="energy-fill" id="energyFill"></div>
-        </div>
-        <p style="font-size: 11px; margin-top: 5px;">태엽을 꾹꾹 눌러 감으세요</p>
-    </div>
-
-    <audio id="audioPlayer" loop></audio>
 
     <script>
-        const mediaInput = document.getElementById('mediaInput');
-        const audioInput = document.getElementById('audioInput');
-        const visualFrame = document.getElementById('visualFrame');
-        const audioPlayer = document.getElementById('audioPlayer');
-        const windKey = document.getElementById('windKey');
-        const energyFill = document.getElementById('energyFill');
-        const fileStatus = document.getElementById('file-status');
-
         let energy = 0;
-        let isPlaying = false;
-        let rotation = 0;
-        let playLoop;
-        let hasAudio = false;
+        let isFixed = false;
 
-        // 사진/영상 업로드 처리
-        mediaInput.addEventListener('change', (e) => {
+        // 배경 업로드
+        document.getElementById('bgUpload').addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if (!file) return;
-            
-            const fileURL = URL.createObjectURL(file);
-            visualFrame.innerHTML = ''; // 기존 텍스트 지우기
-            
-            if (file.type.startsWith('video/')) {
-                const video = document.createElement('video');
-                video.src = fileURL;
-                video.style.width = '100%'; video.style.height = '100%'; video.style.objectFit = 'cover';
-                video.loop = true; video.muted = true; // 소리는 오디오 파일에서 나도록 비디오는 음소거
-                visualFrame.appendChild(video);
-                fileStatus.innerText = "비디오가 업로드되었습니다.";
+            if(file) document.body.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
+        });
+
+        // 태엽 감기
+        document.getElementById('windUp').addEventListener('click', () => {
+            energy += 25;
+            if(energy >= 100) {
+                document.getElementById('drawer').classList.add('open');
+                energy = 100;
+            }
+        });
+
+        // 고정 토글
+        function toggleFix() {
+            isFixed = !isFixed;
+            document.getElementById('mirror').style.transform = isFixed ? 'scale(1.1)' : 'scale(1)';
+            alert(isFixed ? "프레임이 사이트에 고정되었습니다." : "고정이 해제되었습니다.");
+        }
+
+        // 스냅사진 및 오디오 업로드 로직
+        function uploadContent(num) {
+            if(confirm(`${num}번 스냅의 사진을 먼저 등록할까요? (취소 시 오디오 등록)`)) {
+                document.getElementById(`img-${num}`).click();
             } else {
-                const img = document.createElement('img');
-                img.src = fileURL;
-                img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover';
-                visualFrame.appendChild(img);
-                fileStatus.innerText = "사진이 업로드되었습니다.";
+                document.getElementById(`audio-${num}`).click();
             }
-        });
+        }
 
-        // 음악 업로드 처리
-        audioInput.addEventListener('change', (e) => {
+        function previewImg(e, num) {
             const file = e.target.files[0];
-            if (!file) return;
-            
-            audioPlayer.src = URL.createObjectURL(file);
-            hasAudio = true;
-            fileStatus.innerText = "음악이 준비되었습니다! 태엽을 감아주세요.";
-        });
-
-        // 태엽 감기 및 재생
-        windKey.addEventListener('click', () => {
-            if (!hasAudio) {
-                alert("먼저 '오르골 소리 넣기' 버튼을 눌러 음악 파일을 올려주세요!");
-                return;
+            if(file) {
+                const url = URL.createObjectURL(file);
+                document.getElementById(`snap-${num}`).innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover;">`;
             }
+        }
 
-            // 클릭할 때마다 에너지 25% 충전
-            energy = Math.min(energy + 25, 100);
-            energyFill.style.width = energy + '%';
-
-            if (!isPlaying) startOrgel();
-        });
-
-        function startOrgel() {
-            isPlaying = true;
-            audioPlayer.play();
-            const video = visualFrame.querySelector('video');
-            if (video) video.play();
-
-            playLoop = setInterval(() => {
-                if (energy > 0) {
-                    energy -= 0.2; // 에너지가 천천히 닳음
-                    energyFill.style.width = energy + '%';
-                    
-                    rotation += 1; // 무대 회전
-                    visualFrame.style.transform = `rotateY(${rotation}deg)`;
-                } else {
-                    // 에너지 방전 시 정지
-                    energy = 0;
-                    energyFill.style.width = '0%';
-                    isPlaying = false;
-                    audioPlayer.pause();
-                    if (video) video.pause();
-                    clearInterval(playLoop);
-                }
-            }, 30); // 부드러운 애니메이션을 위해 30ms 간격
+        function readyAudio(num) {
+            alert(`${num}번 스냅의 음악이 준비되었습니다.`);
+            // 여기에 오디오 재생 객체 생성 로직 추가 가능
         }
     </script>
 </body>
