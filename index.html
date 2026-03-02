@@ -13,7 +13,7 @@
 
         body {
             margin: 0; padding: 0; 
-            min-height: 100dvh; /* 🔥 모바일 버그 방지용 dvh 적용 */
+            min-height: 100dvh; 
             font-family: 'Cinzel', serif;
             background: #000 fixed center/cover no-repeat;
             background-image: url('https://images.unsplash.com/photo-1516478950587-8d076cd771ad?q=80&w=2070');
@@ -32,7 +32,7 @@
 
         .sliding-panel {
             position: fixed; bottom: 0; width: 100%; 
-            height: 90dvh; /* 🔥 모바일 버그 방지용 dvh 적용 */
+            height: 90dvh; 
             background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(45px);
             border-top: 1px solid rgba(255, 255, 255, 0.1); border-radius: 40px 40px 0 0;
             z-index: 500; display: flex; flex-direction: column; align-items: center;
@@ -43,21 +43,28 @@
         .panel-handle { width: 100%; height: 70px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .handle-bar { width: 40px; height: 1px; background: rgba(255, 255, 255, 0.2); margin-bottom: 8px; }
 
-        /* 🔥 스크롤 꼬임 방지를 위한 여백/스크롤 속성 수정 */
-        .board-area { width: min(95vw, 550px); flex: 1; overflow-y: scroll; padding: 40px 0 120px; display: flex; flex-direction: column; gap: 60px; }
+        /* 🔥 스크롤을 담당하는 컨테이너 */
+        .board-area { 
+            width: min(95vw, 550px); flex: 1; 
+            overflow-y: auto; /* 중요: auto로 설정 */
+            overflow-x: hidden;
+            padding: 40px 0 120px; display: flex; flex-direction: column; gap: 60px; 
+        }
         
-        /* 🔥 강제 vh 제거: 내용물 길이에 맞춰 무한 확장되도록 변경 */
+        /* 🔥 글 잘림의 원인이었던 overflow: hidden 삭제! */
         .shutter-card {
             position: relative; width: 100%; 
-            min-height: 450px; height: auto; /* 미디어 영역 크기만 방어하고 auto로 확장 */
-            background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; overflow: hidden;
+            height: auto; min-height: 450px; /* 지피티 지시대로 정확히 맞춤 */
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 30px; 
+            clip-path: inset(0 0 0 0 round 30px); /* overflow:hidden 대신 모서리만 둥글게 자르는 안전한 방법 */
             display: flex; flex-direction: column;
         }
 
-        /* 🔥 강제 vh 제거: 텍스트가 아무리 길어져도 다 품어줌 */
+        /* 🔥 덮개도 내용에 맞춰 완벽히 늘어나도록 설정 */
         .shutter-cover {
             position: relative; width: 100%; 
-            height: auto; min-height: 450px; 
+            height: auto; min-height: 450px; /* 지피티 지시대로 정확히 맞춤 */
             background: rgba(30, 30, 30, 0.98); backdrop-filter: blur(25px); z-index: 20;
             padding: 45px 40px; display: flex; flex-direction: column; justify-content: flex-start;
             border-right: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.8s ease;
@@ -65,10 +72,15 @@
         .shutter-card.open .shutter-cover { transform: translateX(100%); position: relative; }
 
         .desc-container { position: relative; margin-top: 25px; display: flex; flex-direction: column; flex-grow: 1; }
+        
+        /* 🔥 텍스트 영역: 강제 높이 제한 해제 및 단어 줄바꿈 보장 */
         .desc-text { 
             color: rgba(255, 255, 255, 0.5); font-size: 12px; line-height: 2; 
             font-family: 'Noto Serif KR'; outline: none; 
-            max-height: none !important; overflow: visible !important;
+            max-height: none !important; 
+            overflow: visible !important;
+            word-break: break-word; /* 추가: 긴 단어나 URL도 안전하게 줄바꿈 */
+            white-space: pre-wrap;  /* 추가: 엔터키 줄바꿈 완벽 유지 */
             text-align: left;
         }
 
@@ -186,8 +198,12 @@
             };
         }
 
+        // 🔥 음악 파일 업로드 시 MP3만 선택되도록 명확히 제한!
         async function triggerUp(id, type) {
-            const input = document.createElement('input'); input.type = 'file'; input.accept = type === 'media' ? 'image/*,video/*' : 'audio/*';
+            const input = document.createElement('input'); 
+            input.type = 'file'; 
+            input.accept = type === 'media' ? 'image/*,video/*' : 'audio/mp3,audio/mpeg'; // MP3 전용
+            
             input.onchange = async e => {
                 const f = e.target.files[0]; if(!f) return;
                 const data = await getData("slots", id); data[type] = f; await saveData("slots", data);
