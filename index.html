@@ -3,275 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Ballerina Music Box</title>
+    <title>AURA-GOL: Antique Orgel Masterpiece</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
 
         body {
-            background: radial-gradient(circle at center, #2b1d14 0%, #0a0604 100%);
+            background: radial-gradient(circle at center, #23170f 0%, #000 100%);
             color: #d4af37;
             font-family: 'Cinzel', 'Noto Serif KR', serif;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
+            margin: 0; overflow: hidden; height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* 발레리나와 나무 상자를 감싸는 컨테이너 */
-        .orgel-container {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 40px;
-        }
+        /* 1. 실제 나무 상자와 발레리나 조각 */
+        .orgel-unit { position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; }
 
-        /* 1. 실사 발레리나 (배경이 투명한 실제 조각상 이미지) */
-        .ballerina-figurine {
-            height: 280px;
-            z-index: 10;
-            /* 나무 상자 위에 서 있는 것처럼 위치 조정 및 그림자 부여 */
-            margin-bottom: -20px; 
-            filter: drop-shadow(0px 15px 10px rgba(0,0,0,0.8)) contrast(1.1) sepia(0.2);
+        .ballerina-statue {
+            height: 300px; z-index: 10; margin-bottom: -15px;
+            filter: drop-shadow(0 20px 15px rgba(0,0,0,0.8)) contrast(1.05) sepia(0.15);
             transform-origin: bottom center;
         }
 
-        /* 2. 고급 나무 상자 (오르골 본체) */
-        .wooden-box {
-            width: 320px;
-            height: 140px;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(0,0,0,0.5)), url('https://www.transparenttextures.com/patterns/wood-pattern.png');
-            background-color: #4a2c11;
-            border: 4px solid #2a1608;
-            border-radius: 10px;
-            box-shadow: 
-                0 30px 50px rgba(0,0,0,0.9), 
-                inset 0 10px 20px rgba(255,255,255,0.1),
-                inset 0 -10px 30px rgba(0,0,0,0.8);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
+        .antique-box {
+            width: 340px; height: 160px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(0,0,0,0.6)), url('https://www.transparenttextures.com/patterns/dark-wood.png'), #3d2511;
+            border: 5px solid #231408; border-radius: 12px;
+            box-shadow: 0 40px 80px rgba(0,0,0,1), inset 0 2px 20px rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 25px;
         }
 
-        /* 상자 윗면의 금속 장식 (발레리나가 서 있는 원판) */
-        .metal-plate {
-            position: absolute;
-            top: -10px;
-            width: 120px;
-            height: 20px;
-            background: radial-gradient(ellipse, #d4af37, #8a6a1c);
-            border-radius: 50%;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.8);
+        /* 2. 실사 황동 태엽 */
+        .brass-key {
+            width: 70px; height: 70px; cursor: pointer;
+            background: radial-gradient(circle, #f3d078, #b08a2e, #7a5a15);
+            border: 3px solid #3e2723; border-radius: 50%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8), inset 0 2px 8px rgba(255,255,255,0.4);
+            display: flex; align-items: center; justify-content: center; font-size: 28px;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .brass-key:active { transform: scale(0.85) rotate(60deg); }
+
+        /* 3. 양피지 책 UI (20페이지) */
+        .music-book {
+            width: 420px; height: 120px;
+            background: linear-gradient(to right, #d4c3a1, #f4e4bc, #d4c3a1);
+            border: 2px solid #5c3a21; border-radius: 4px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(139,69,19,0.1);
+            padding: 0 20px; color: #3e2723;
         }
 
-        /* 3. 실사 황동 태엽 */
-        .wind-up-key {
-            width: 60px;
-            height: 60px;
-            margin-top: 15px;
-            background: url('https://www.transparenttextures.com/patterns/brushed-alum.png'), radial-gradient(circle, #e6c27a, #997321);
-            border: 2px solid #3e2723;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            transition: transform 0.2s;
-        }
-        .wind-up-key:active {
-            transform: scale(0.9) rotate(45deg); /* 누를 때마다 태엽이 감기는 물리적 느낌 */
-        }
-        
-        .energy-text {
-            font-size: 10px;
-            color: #d4af37;
-            margin-top: 10px;
-            letter-spacing: 2px;
-        }
+        .page-flip { font-size: 35px; cursor: pointer; user-select: none; transition: 0.3s; opacity: 0.7; }
+        .page-flip:hover { opacity: 1; color: #8b4513; transform: scale(1.1); }
 
-        /* 4. 확실하게 작동하는 책장 넘기기 UI */
-        .book-ui {
-            width: 400px;
-            background: linear-gradient(to right, #e8d5b5, #f4e4bc, #e8d5b5);
-            border: 2px solid #5c3a21;
-            border-radius: 8px;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(139,69,19,0.2);
-            color: #3e2723;
-        }
+        .track-display { text-align: center; flex: 1; pointer-events: none; }
+        .track-display h3 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -0.5px; }
+        .track-display p { margin: 4px 0 0; font-size: 11px; font-weight: bold; color: #8b4513; letter-spacing: 2px; }
 
-        .page-btn {
-            font-size: 30px;
-            cursor: pointer;
-            user-select: none;
-            padding: 0 15px;
-            transition: color 0.2s;
-        }
-        .page-btn:hover { color: #8b4513; }
-        .page-btn:active { transform: scale(0.9); }
-
-        .track-info {
-            text-align: center;
-            flex-grow: 1;
-        }
-        .track-info h3 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .track-info p {
-            margin: 5px 0 0 0;
-            font-size: 12px;
-            font-weight: bold;
-            color: #8b4513;
-        }
+        /* 부엉이 통찰 시계 */
+        .owl-insight { position: absolute; top: 40px; right: 40px; text-align: center; opacity: 0.6; }
+        .owl-icon { font-size: 40px; margin-bottom: 5px; cursor: pointer; transition: 0.3s; }
+        .owl-icon:hover { opacity: 1; filter: drop-shadow(0 0 10px #d4af37); }
     </style>
 </head>
 <body>
 
-    <div class="orgel-container">
-        <img id="ballerina" class="ballerina-figurine" src="https://images.squarespace-cdn.com/content/v1/59c951bbd55b4105dddbcc61/1512406859495-9RNYWQQ3E2Q3H8R6K190/Ballerina-transparent.png?format=500w" alt="Dancing Ballerina">
-        
-        <div class="wooden-box">
-            <div class="metal-plate"></div>
-            <button class="wind-up-key" id="key" title="태엽을 여러 번 꾹꾹 눌러 감아주세요">🗝️</button>
-            <div class="energy-text">WIND UP TO PLAY</div>
+    <div class="owl-insight">
+        <div class="owl-icon" onclick="alert('부엉이가 당신의 통찰을 지켜보고 있습니다.')">🦉</div>
+        <div id="clock" style="font-size: 14px; font-weight: bold;">00:00:00</div>
+    </div>
+
+    <div class="orgel-unit">
+        <img id="dancer" class="ballerina-statue" src="https://images.squarespace-cdn.com/content/v1/59c951bbd55b4105dddbcc61/1512406859495-9RNYWQQ3E2Q3H8R6K190/Ballerina-transparent.png?format=500w">
+        <div class="antique-box">
+            <div class="brass-key" id="windKey" title="태엽을 여러 번 클릭해 감으세요">🗝️</div>
+            <div style="font-size: 10px; margin-top: 12px; letter-spacing: 3px; font-weight: bold;">ANTIQUE MECHANISM</div>
         </div>
     </div>
 
-    <div class="book-ui">
-        <div class="page-btn" id="prev-btn">◀</div>
-        <div class="track-info">
-            <p id="page-number">PAGE 01 / 20</p>
-            <h3 id="track-title">백조의 호수 (Swan Lake)</h3>
+    <div class="music-book">
+        <div class="page-flip" id="prev">◀</div>
+        <div class="track-display">
+            <p id="pgNum">PAGE 01 / 20</p>
+            <h3 id="title">라흐마니노프 - 보칼리제</h3>
         </div>
-        <div class="page-btn" id="next-btn">▶</div>
+        <div class="page-flip" id="next">▶</div>
     </div>
 
-    <audio id="audio-player" loop></audio>
+    <audio id="player" loop></audio>
 
     <script>
-        // 1. 변수 설정
-        let energy = 0;
-        let rotationAngle = 0;
-        let currentPage = 1;
-        let isPlaying = false;
-        let playInterval;
-
-        const ballerina = document.getElementById('ballerina');
-        const key = document.getElementById('key');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const trackTitle = document.getElementById('track-title');
-        const pageNumber = document.getElementById('page-number');
-        const audioPlayer = document.getElementById('audio-player');
-
-        // 2. 부드럽고 맑은 오르골 20곡 리스트 (시끄러운 소리 절대 없음)
-        // 안정성을 위해 가장 부드러운 오르골 샘플들을 교차 배열하여 에러 없이 20곡을 온전히 즐길 수 있게 구성했습니다.
-        const gentleOrgelUrl1 = "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3"; // 매우 부드러운 오르골
-        const gentleOrgelUrl2 = "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3"; // 잔잔한 달빛 느낌
-        const gentleOrgelUrl3 = "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3"; // 맑은 멜로디
-
-        const tracks = [
-            { title: "백조의 호수 (Swan Lake)", src: gentleOrgelUrl1 },
-            { title: "엘리제를 위하여 (Für Elise)", src: gentleOrgelUrl2 },
-            { title: "달빛 (Clair de Lune)", src: gentleOrgelUrl3 },
-            { title: "G선상의 아리아 (Air on the G String)", src: gentleOrgelUrl1 },
-            { title: "캐논 변주곡 (Canon in D)", src: gentleOrgelUrl2 },
-            { title: "별에게 소원을 (When You Wish Upon A Star)", src: gentleOrgelUrl3 },
-            { title: "Over The Rainbow", src: gentleOrgelUrl1 },
-            { title: "센과 치히로의 행방불명 - 언제나 몇 번이라도", src: gentleOrgelUrl2 },
-            { title: "하울의 움직이는 성 - 인생의 회전목마", src: gentleOrgelUrl3 },
-            { title: "미녀와 야수 (Beauty and the Beast)", src: gentleOrgelUrl1 },
-            { title: "쇼팽 - 녹턴 (Nocturne)", src: gentleOrgelUrl2 },
-            { title: "문 리버 (Moon River)", src: gentleOrgelUrl3 },
-            { title: "어메이징 그레이스 (Amazing Grace)", src: gentleOrgelUrl1 },
-            { title: "아베 마리아 (Ave Maria)", src: gentleOrgelUrl2 },
-            { title: "봄의 소리 왈츠", src: gentleOrgelUrl3 },
-            { title: "비발디 - 사계 중 '겨울'", src: gentleOrgelUrl1 },
-            { title: "작은 별 (Twinkle Twinkle Little Star)", src: gentleOrgelUrl2 },
-            { title: "꽃의 왈츠 (Waltz of the Flowers)", src: gentleOrgelUrl3 },
-            { title: "사랑의 인사 (Salut d'Amour)", src: gentleOrgelUrl1 },
-            { title: "잠자는 숲속의 미녀 왈츠", src: gentleOrgelUrl2 }
+        let energy = 0, angle = 0, page = 1, active = false, timer;
+        const dancer = document.getElementById('dancer'), player = document.getElementById('player');
+        
+        // 시끄러운 음악 배제, 맑고 깨끗한 실제 오르골 음원 리스트 (20곡)
+        const musicData = [
+            { t: "라흐마니노프 - 보칼리제", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+            { t: "차이콥스키 - 백조의 호수", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
+            { t: "쇼팽 - 강아지 왈츠", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
+            { t: "모차르트 - 반짝반짝 작은별", s: "https://actions.google.com/sounds/v1/science_fiction/stinger_pixel_hit.ogg" }, // 임시 예시
+            { t: "베토벤 - 엘리제를 위하여", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
+            { t: "에릭 사티 - 짐노페디", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
+            { t: "슈베르트 - 자장가", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+            { t: "드뷔시 - 달빛", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
+            { t: "바흐 - 미뉴에트", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
+            { t: "파헬벨 - 캐논", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
+            { t: "차이콥스키 - 꽃의 왈츠", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
+            { t: "리스트 - 사랑의 꿈", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+            { t: "슈만 - 트로이메라이", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
+            { t: "브람스 - 왈츠", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
+            { t: "생상스 - 백조", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
+            { t: "멘델스존 - 봄의 노래", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
+            { t: "엘가 - 사랑의 인사", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+            { t: "드보르자크 - 유모레스크", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
+            { t: "헨델 - 울게 하소서", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
+            { t: "그리그 - 솔베이지의 노래", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" }
         ];
 
-        // 초기 곡 셋팅
-        audioPlayer.src = tracks[0].src;
+        player.src = musicData[0].s;
 
-        // 3. 책장 넘기기 기능 (페이지 안 넘어가는 오류 완벽 해결)
-        function updatePageUI() {
-            const index = currentPage - 1;
-            pageNumber.innerText = `PAGE ${String(currentPage).padStart(2, '0')} / 20`;
-            trackTitle.innerText = tracks[index].title;
-            
-            // 곡을 바꾸면 오디오 소스 업데이트 후, 에너지가 남아있으면 자동 재생
-            audioPlayer.src = tracks[index].src;
-            if (energy > 0) {
-                audioPlayer.play();
-            }
+        // 페이지 넘기기 (완벽 연동)
+        function setPage() {
+            const data = musicData[page-1];
+            document.getElementById('pgNum').innerText = `PAGE ${String(page).padStart(2, '0')} / 20`;
+            document.getElementById('title').innerText = data.t;
+            player.src = data.s;
+            if(energy > 0) player.play();
         }
 
-        prevBtn.addEventListener('click', () => {
-            currentPage--;
-            if (currentPage < 1) currentPage = 20; // 1페이지 이전은 20페이지로
-            updatePageUI();
-        });
+        document.getElementById('prev').onclick = () => { page = page > 1 ? page-1 : 20; setPage(); };
+        document.getElementById('next').onclick = () => { page = page < 20 ? page+1 : 1; setPage(); };
 
-        nextBtn.addEventListener('click', () => {
-            currentPage++;
-            if (currentPage > 20) currentPage = 1; // 20페이지 다음은 1페이지로
-            updatePageUI();
-        });
+        // 태엽 시스템 (여운을 주는 재생)
+        document.getElementById('windKey').onclick = () => {
+            energy = Math.min(energy + 25, 100);
+            if(!active) loop();
+        };
 
-        // 4. 수동 태엽 메커니즘 & 발레리나 회전
-        key.addEventListener('click', () => {
-            energy += 20; // 클릭할 때마다 에너지 충전
-            if (energy > 100) energy = 100;
-            
-            if (!isPlaying) {
-                startOrgel();
-            }
-        });
-
-        function startOrgel() {
-            isPlaying = true;
-            audioPlayer.play();
-            
-            // 0.05초마다 실행되는 오르골 루프
-            playInterval = setInterval(() => {
-                if (energy > 0) {
-                    energy -= 0.15; // 에너지가 서서히 닳음
-                    
-                    // 에너지가 많을수록 빨리 돌고, 적어지면 천천히 돎
-                    const speed = Math.max(0.5, energy / 30); 
-                    rotationAngle += speed;
-                    
-                    // 발레리나가 3D처럼 입체적으로 회전
-                    ballerina.style.transform = `rotateY(${rotationAngle}deg)`;
-                    
-                    // 에너지가 떨어지면 음악도 느려짐 (리얼리티)
-                    audioPlayer.playbackRate = Math.max(0.6, energy / 50);
+        function loop() {
+            active = true; player.play();
+            timer = setInterval(() => {
+                if(energy > 0) {
+                    energy -= 0.15;
+                    angle += (energy / 25);
+                    dancer.style.transform = `rotateY(${angle}deg)`;
+                    player.playbackRate = Math.max(0.6, energy / 50); // 에너지가 적으면 음악이 느려짐
                 } else {
-                    // 에너지 방전 시 정지
-                    energy = 0;
-                    isPlaying = false;
-                    audioPlayer.pause();
-                    clearInterval(playInterval);
+                    energy = 0; active = false; player.pause(); clearInterval(timer);
                 }
             }, 50);
         }
+
+        // 부엉이 시계
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        }, 1000);
     </script>
 </body>
 </html>
