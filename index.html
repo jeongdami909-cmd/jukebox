@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA-GOL: Eternal Infinity (Open Text)</title>
+    <title>AURA-GOL: Eternal Infinity (Museum Style)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
@@ -28,6 +28,7 @@
 
         .top-nav { position: fixed; top: 30px; display: flex; gap: 8px; z-index: 2000; }
 
+        /* 발밑 슬라이딩 패널 */
         .sliding-panel {
             position: fixed; bottom: 0; width: 100%; height: 90vh;
             background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(45px);
@@ -42,23 +43,24 @@
 
         .board-area { width: min(95vw, 550px); flex: 1; overflow-y: auto; padding: 20px 0 100px; display: flex; flex-direction: column; gap: 40px; }
         
-        /* [수정] 카드 높이를 내용에 맞춰 자동으로 늘리도록 변경 */
+        /* [수정] 카드 높이를 내용에 맞춰 무제한으로 확장 */
         .shutter-card {
             position: relative; width: 100%; min-height: 450px; height: auto;
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; overflow: hidden;
             display: flex; flex-direction: column;
         }
 
-        /* 셔터 덮개: 카드 높이에 맞춰 함께 늘어남 */
+        /* [핵심 수정] 덮개를 relative로 변경하여 카드 높이를 늘려줌 */
         .shutter-cover {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: relative; width: 100%; height: auto; min-height: 450px;
             background: rgba(40, 40, 40, 0.96); backdrop-filter: blur(15px); z-index: 10;
             padding: 30px; display: flex; flex-direction: column;
             border-right: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.8s ease;
         }
-        .shutter-card.open .shutter-cover { transform: translateX(100%); }
+        /* 열릴 때만 absolute로 잠시 바꿔서 시원하게 밀어줌 */
+        .shutter-card.open .shutter-cover { transform: translateX(100%); position: absolute; }
 
-        /* [핵심 수정] 지피티 의견 반영: 글이 항상 다 보이도록 설정 */
+        /* [지피티 의견 반영] 글이 항상 다 보이도록 설정 */
         .desc-container { position: relative; margin-top: 20px; display: flex; flex-direction: column; flex-grow: 1; }
         .desc-text { 
             color: rgba(255, 255, 255, 0.5); font-size: 11px; line-height: 1.8; 
@@ -66,8 +68,9 @@
             max-height: none !important; /* ← 무제한 확장 */
             overflow: visible !important; /* ← 스크롤 방지 */
         }
-        .read-more-btn { display: none !important; } /* ← 펼치기 버튼 삭제 */
+        .read-more-btn { display: none !important; } /* ← 버튼 숨김 */
 
+        /* 안쪽 미디어 영역은 항상 고정된 높이 유지 */
         .media-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex; flex-direction: column; }
         .media-display { width: 100%; height: 320px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .media-display video, .media-display img { width: 100%; height: 100%; object-fit: cover; }
@@ -101,9 +104,9 @@
     </div>
 
     <script>
-        // --- IndexedDB Logic (No modifications here) ---
+        // --- IndexedDB Logic (보존) ---
         let db;
-        const dbName = "AuraGolFinalOpenDB";
+        const dbName = "AuraGolInfinityOpenDB";
         const request = indexedDB.open(dbName, 1);
         request.onupgradeneeded = e => {
             db = e.target.result;
