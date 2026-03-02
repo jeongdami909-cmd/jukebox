@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost Crystal: Master Background</title>
+    <title>Ghost Crystal: Background Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
@@ -15,60 +15,62 @@
         body {
             margin: 0; padding: 0; height: 100vh;
             font-family: 'Cinzel', serif;
-            background: #000 fixed center/cover no-repeat;
-            /* 초기 배경은 검은색입니다 */
+            background: #000 center/cover no-repeat;
+            /* 초기 설정: 배경 고정(fixed) */
+            background-attachment: fixed;
+            background-image: url('https://images.unsplash.com/photo-1516478950587-8d076cd771ad?q=80&w=2070');
             overflow: hidden; display: flex; flex-direction: column; align-items: center;
+            transition: background-image 0.5s ease;
         }
 
-        /* 옅은 흰색 고스트 버튼 (배경 제어용) */
+        /* 옅은 흰색 고스트 버튼 */
         .ghost-btn {
             background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: rgba(255, 255, 255, 0.35);
-            padding: 4px 10px; border-radius: 12px; font-size: 7px;
-            cursor: pointer; backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.4);
+            padding: 4px 12px; border-radius: 20px; font-size: 7px;
+            cursor: pointer; backdrop-filter: blur(5px);
             text-transform: uppercase; letter-spacing: 1.5px; transition: 0.3s;
         }
-        .ghost-btn:hover { background: rgba(255, 255, 255, 0.07); color: rgba(255, 255, 255, 0.8); border-color: rgba(255, 255, 255, 0.2); }
+        .ghost-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; border-color: rgba(255, 255, 255, 0.3); }
 
-        /* 상단 통합 컨트롤 바 */
-        .top-nav { position: fixed; top: 25px; display: flex; gap: 10px; z-index: 2000; }
+        /* 상단 네비게이션: 배경사진 수정/삭제/고정 통합 */
+        .top-nav { position: fixed; top: 30px; display: flex; gap: 8px; z-index: 2000; }
 
-        /* 슬라이딩 패널 (발밑 숨김) */
+        /* 슬라이딩 패널 (게시판) */
         .sliding-panel {
             position: fixed; bottom: 0; width: 100%; height: 90vh;
-            background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(40px);
-            border-top: 1px solid rgba(255, 255, 255, 0.05); border-radius: 40px 40px 0 0;
+            background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(35px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08); border-radius: 40px 40px 0 0;
             z-index: 500; display: flex; flex-direction: column; align-items: center;
             transform: translateY(calc(100% - 65px)); transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
         }
         .sliding-panel.is-open { transform: translateY(0); }
-        .sliding-panel.fixed-pos { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: 85vh; width: min(95vw, 550px); border-radius: 30px; }
 
-        /* 투명 핸들 */
+        /* 패널 핸들 */
         .panel-handle { width: 100%; height: 65px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .handle-bar { width: 30px; height: 1px; background: rgba(255, 255, 255, 0.15); margin-bottom: 5px; }
+        .handle-bar { width: 35px; height: 1px; background: rgba(255, 255, 255, 0.2); margin-bottom: 6px; }
 
-        /* 게시판 영역 */
-        .board-area { width: 90%; flex: 1; overflow-y: auto; padding: 20px 0 100px; display: flex; flex-direction: column; gap: 30px; }
+        /* 아카이브 게시판 영역 */
+        .board-area { width: min(95vw, 520px); flex: 1; overflow-y: auto; padding: 20px 0 100px; display: flex; flex-direction: column; gap: 40px; }
         
         /* 셔터 카드 */
         .shutter-card {
-            position: relative; width: 100%; height: 350px;
-            background: rgba(0,0,0,0.2); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 15px; overflow: hidden;
+            position: relative; width: 100%; height: 380px;
+            background: rgba(0,0,0,0.1); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; overflow: hidden;
         }
 
-        /* 셔터 덮개 (옅은 회색 투명) */
+        /* 옆으로 밀리는 투명 회색 덮개 */
         .shutter-cover {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(30, 30, 30, 0.94); backdrop-filter: blur(15px); z-index: 5;
+            background: rgba(40, 40, 40, 0.92); backdrop-filter: blur(15px); z-index: 5;
             padding: 25px; display: flex; flex-direction: column;
-            border-right: 1px solid rgba(255, 255, 255, 0.05); transition: transform 0.8s ease;
+            border-right: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.8s ease;
         }
-        .shutter-card.open .shutter-cover { transform: translateX(96%); }
+        .shutter-card.open .shutter-cover { transform: translateX(95%); }
 
-        .faint-white { color: rgba(255, 255, 255, 0.3); font-size: 7px; letter-spacing: 2px; text-transform: uppercase; }
-        .desc-text { color: rgba(255, 255, 255, 0.5); font-size: 11px; line-height: 1.8; font-family: 'Noto Serif KR'; outline: none; margin-top: 10px; flex: 1; overflow-y: auto; }
+        .faint-white { color: rgba(255, 255, 255, 0.3); font-size: 8px; letter-spacing: 3px; text-transform: uppercase; }
+        .desc-text { color: rgba(255, 255, 255, 0.5); font-size: 11px; line-height: 1.8; font-family: 'Noto Serif KR'; outline: none; margin-top: 15px; flex: 1; overflow-y: auto; }
 
         input[type="file"] { display: none; }
     </style>
@@ -78,7 +80,7 @@
     <div class="top-nav">
         <label class="ghost-btn">EDIT BG<input type="file" id="bgIn" accept="image/*"></label>
         <button class="ghost-btn" onclick="deleteBG()">DEL BG</button>
-        <button class="ghost-btn" id="fixBtn" onclick="toggleFix()">FIX FRAME</button>
+        <button class="ghost-btn" id="bgFixBtn" onclick="toggleBGFix()">FIX BG: ON</button>
     </div>
 
     <div class="sliding-panel" id="mainPanel">
@@ -89,64 +91,61 @@
 
         <div class="board-area" id="boardList">
             <div class="shutter-card" id="card-1">
-                <div style="position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.05); font-size: 8px;">EMPTY SLOT</div>
+                <div style="position: absolute; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.05); font-size:7px;">MEDIA SLOT</div>
                 <div class="shutter-cover">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
-                        <span style="font-size: 8px; color: rgba(255,255,255,0.25);">#01 ARCHIVE</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                        <span style="font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 2px;">#01 SLOT</span>
                         <div style="display: flex; gap: 4px;">
                             <button class="ghost-btn" onclick="toggleShutter(1)">OPEN</button>
                             <button class="ghost-btn">EDIT</button>
-                            <button class="ghost-btn" style="color: rgba(255, 50, 50, 0.3);">DEL</button>
+                            <button class="ghost-btn" onclick="this.parentElement.parentElement.parentElement.parentElement.style.border='1px solid white'">FIX</button>
+                            <button class="ghost-btn" style="color: rgba(255, 100, 100, 0.3);" onclick="this.parentElement.parentElement.parentElement.parentElement.remove()">DEL</button>
                         </div>
                     </div>
-                    <div class="desc-text" contenteditable="true">Write your insight here...</div>
+                    <div class="desc-text" contenteditable="true">Write your story here...</div>
                 </div>
             </div>
         </div>
 
-        <div style="height: 60px; display: flex; align-items: center;">
-            <button class="ghost-btn" onclick="addNewCard()">+ NEW MEMORY</button>
+        <div style="width: 100%; height: 80px; display: flex; align-items: center; justify-content: center;">
+            <button class="ghost-btn" onclick="addNewCard()">+ ADD NEW ARCHIVE</button>
         </div>
     </div>
 
     <script>
-        let isFixed = false;
         let cardCount = 1;
+        let isBGFixed = true;
 
-        // [배경 수정: EDIT BG]
+        // 1. 배경 수정 (EDIT)
         document.getElementById('bgIn').onchange = (e) => {
             const f = e.target.files[0];
             if(f) document.body.style.backgroundImage = `url(${URL.createObjectURL(f)})`;
         };
 
-        // [배경 삭제: DEL BG]
+        // 2. 배경 삭제 (DEL)
         function deleteBG() {
-            if(confirm("배경사진을 삭제하고 초기화할까요?")) {
+            if(confirm("배경사진을 삭제할까요?")) {
                 document.body.style.backgroundImage = "none";
                 document.body.style.backgroundColor = "#000";
             }
         }
 
-        // [프레임 고정: FIX FRAME]
-        function toggleFix() {
-            isFixed = !isFixed;
-            const panel = document.getElementById('mainPanel');
-            const fixBtn = document.getElementById('fixBtn');
-            
-            if(isFixed) {
-                panel.classList.add('fixed-pos');
-                panel.classList.add('is-open');
-                fixBtn.innerText = "UNFIX FRAME";
-                fixBtn.style.color = "rgba(255, 255, 255, 0.8)";
+        // 3. 배경 고정 (FIX)
+        function toggleBGFix() {
+            isBGFixed = !isBGFixed;
+            const btn = document.getElementById('bgFixBtn');
+            if(isBGFixed) {
+                document.body.style.backgroundAttachment = "fixed";
+                btn.innerText = "FIX BG: ON";
+                btn.style.color = "rgba(255, 255, 255, 0.6)";
             } else {
-                panel.classList.remove('fixed-pos');
-                panel.classList.remove('is-open');
-                fixBtn.innerText = "FIX FRAME";
-                fixBtn.style.color = "rgba(255, 255, 255, 0.35)";
+                document.body.style.backgroundAttachment = "scroll";
+                btn.innerText = "FIX BG: OFF";
+                btn.style.color = "rgba(255, 255, 255, 0.3)";
             }
         }
 
-        function togglePanel() { if(!isFixed) document.getElementById('mainPanel').classList.toggle('is-open'); }
+        function togglePanel() { document.getElementById('mainPanel').classList.toggle('is-open'); }
         function toggleShutter(id) { document.getElementById(`card-${id}`).classList.toggle('open'); }
 
         function addNewCard() {
@@ -156,17 +155,18 @@
             newCard.className = 'shutter-card';
             newCard.id = `card-${cardCount}`;
             newCard.innerHTML = `
-                <div style="position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.05); font-size: 8px;">EMPTY SLOT</div>
+                <div style="position: absolute; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.05); font-size:7px;">MEDIA SLOT</div>
                 <div class="shutter-cover">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
-                        <span style="font-size: 8px; color: rgba(255,255,255,0.25);">#${String(cardCount).padStart(2, '0')} ARCHIVE</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                        <span style="font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 2px;">#${String(cardCount).padStart(2, '0')} SLOT</span>
                         <div style="display: flex; gap: 4px;">
                             <button class="ghost-btn" onclick="toggleShutter(${cardCount})">OPEN</button>
                             <button class="ghost-btn">EDIT</button>
-                            <button class="ghost-btn" style="color: rgba(255, 50, 50, 0.3);">DEL</button>
+                            <button class="ghost-btn" onclick="this.parentElement.parentElement.parentElement.parentElement.style.border='1px solid white'">FIX</button>
+                            <button class="ghost-btn" style="color: rgba(255, 100, 100, 0.3);" onclick="this.parentElement.parentElement.parentElement.parentElement.remove()">DEL</button>
                         </div>
                     </div>
-                    <div class="desc-text" contenteditable="true">Record a new memory...</div>
+                    <div class="desc-text" contenteditable="true">Record a new insight...</div>
                 </div>
             `;
             list.appendChild(newCard);
