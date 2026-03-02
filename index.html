@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,18 +42,19 @@
         .panel-handle { width: 100%; height: 70px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .handle-bar { width: 40px; height: 1px; background: rgba(255, 255, 255, 0.2); margin-bottom: 8px; }
 
-        /* [핵심] 미술관 앱 스타일: 카드 간격 넓힘 및 하단 완전 개방 */
-        .board-area { width: min(95vw, 550px); flex: 1; overflow-y: auto; padding: 40px 0 250px; display: flex; flex-direction: column; gap: 80px; }
+        /* [수정됨] 패딩과 갭을 줄여서 스크롤 꼬임 방지 */
+        .board-area { width: min(95vw, 550px); flex: 1; overflow-y: auto; padding: 40px 0 120px; display: flex; flex-direction: column; gap: 40px; }
         
+        /* [수정됨] 100vh -> 패널 크기에 맞춘 calc(90vh - 120px)로 변경 */
         .shutter-card {
-            position: relative; width: 100%; min-height: 100vh; height: auto; /* 화면 꽉 차게 확장 */
+            position: relative; width: 100%; min-height: calc(90vh - 120px); height: auto; 
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; overflow: hidden;
             display: flex; flex-direction: column;
         }
 
-        /* [핵심] 덮개: 미술관 앱처럼 넉넉한 여백(Padding) 적용 및 100vh 확장 */
+        /* [수정됨] 100vh -> 패널 크기에 맞춘 calc(90vh - 120px)로 변경 */
         .shutter-cover {
-            position: relative; width: 100%; height: auto; min-height: 100vh; /* 화면 꽉 차게 확장 */
+            position: relative; width: 100%; height: auto; min-height: calc(90vh - 120px); 
             background: rgba(30, 30, 30, 0.98); backdrop-filter: blur(25px); z-index: 20;
             padding: 45px 40px; display: flex; flex-direction: column; justify-content: flex-start;
             border-right: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.8s ease;
@@ -101,7 +103,7 @@
 
     <script>
         let db, cardIDs = [], currentAudio = null;
-        let isBGFixed = true; // Added missing variable initialization based on your original JS functions
+        let isBGFixed = true;
         const dbName = "AuraGolMuseumInfinityFinalDB";
         const request = indexedDB.open(dbName, 1);
 
