@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mechanical Crystal</title>
+    <title>Pure Crystal Window</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
@@ -17,90 +17,67 @@
             transition: background-image 0.5s ease;
         }
 
-        /* 1. 절제된 투명 골드 프레임 (사각 창문) */
-        .mirror-container {
-            position: relative; width: 520px; height: 740px;
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(15px);
-            border-radius: 40px; /* 안정적인 사각 라운딩 */
-            border: 12px solid transparent;
-            border-image: linear-gradient(to bottom, #d4af37, #f3d078, #b08a2e) 1;
-            box-shadow: 0 0 50px rgba(212, 175, 55, 0.2), inset 0 0 80px rgba(255,255,255,0.05);
+        /* 1. 노란색 프레임이 제거된 투명 컨테이너 */
+        .crystal-container {
+            position: relative; width: 520px; height: 680px;
+            background: rgba(255, 255, 255, 0.01); /* 극도의 투명도 */
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            /* 노란 프레임 제거: border 및 border-image 삭제 */
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.05), inset 0 0 50px rgba(255,255,255,0.02);
             display: flex; flex-direction: column; align-items: center;
             overflow: hidden;
         }
 
         /* 중앙 직사각형 미디어 영역 */
         .media-center {
-            width: 90%; height: 48%; margin-top: 50px;
-            background: rgba(255, 255, 255, 0.05);
+            width: 90%; height: 55%; margin-top: 40px;
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 20px;
             overflow: hidden; display: flex; align-items: center; justify-content: center;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* 2. 반투명 화이트 화장대 & 서랍 */
+        /* 2. 상시 개방된 반투명 화장대 & 서랍 */
         .vanity-glass {
             position: absolute; bottom: 0; width: 100%;
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
             display: flex; flex-direction: column; align-items: center;
             padding-bottom: 25px;
         }
 
+        /* 태엽이 제거되어 즉시 보이는 서랍 */
         .drawer-content {
-            width: 95%; height: 0;
+            width: 95%; height: 180px; /* 고정 높이로 상시 노출 */
             display: flex; gap: 15px; overflow-x: auto;
-            transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            padding-top: 20px;
         }
-        .drawer-content.open { height: 180px; padding-top: 20px; border-top: 1px solid rgba(212, 175, 55, 0.4); }
 
-        /* 3. 극소형 투명 영문 버튼 스타일 */
+        /* 3. 극소형 투명 영문 버튼 */
         .glass-btn-sm {
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: rgba(212, 175, 55, 0.7); padding: 6px 12px; border-radius: 20px;
-            font-size: 9px; cursor: pointer; backdrop-filter: blur(10px);
-            transition: all 0.3s; letter-spacing: 2px; text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5); padding: 5px 12px; border-radius: 15px;
+            font-size: 8px; cursor: pointer; backdrop-filter: blur(5px);
+            transition: all 0.3s; letter-spacing: 1.5px; text-transform: uppercase;
         }
-        .glass-btn-sm:hover { background: rgba(212, 175, 55, 0.1); border-color: #d4af37; color: #d4af37; }
-
-        /* 회전하는 황금 태엽 */
-        .wind-key-wrapper {
-            width: 70px; height: 70px; margin-top: -35px;
-            position: relative; z-index: 100;
-        }
-        
-        .wind-key {
-            width: 100%; height: 100%;
-            background: radial-gradient(circle, #f3d078, #b08a2e);
-            border: 3px solid #1a0f0a; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 30px; cursor: pointer;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            transition: transform 0.5s cubic-bezier(0.45, 0.05, 0.55, 0.95);
-        }
-
-        /* 에너지 게이지 */
-        .energy-gauge {
-            width: 100px; height: 3px; background: rgba(255,255,255,0.05);
-            margin-top: 10px; border-radius: 1.5px; overflow: hidden;
-        }
-        .energy-fill { width: 0%; height: 100%; background: #d4af37; transition: width 0.3s ease; }
+        .glass-btn-sm:hover { background: rgba(255, 255, 255, 0.1); color: #fff; border-color: #fff; }
 
         /* 스냅 슬롯 */
         .snap-slot {
             min-width: 110px; height: 140px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 8px; cursor: pointer;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: 0.3s;
         }
-        .snap-slot:hover { border-color: #d4af37; background: rgba(255, 255, 255, 0.08); }
+        .snap-slot:hover { border-color: rgba(255,255,255,0.3); background: rgba(255, 255, 255, 0.05); }
 
-        .top-nav { position: fixed; top: 30px; display: flex; gap: 15px; z-index: 1000; }
+        .top-nav { position: fixed; top: 30px; display: flex; gap: 12px; z-index: 1000; }
         input[type="file"] { display: none; }
     </style>
 </head>
@@ -111,26 +88,21 @@
         <div class="glass-btn-sm" id="fixBtn">FIX FRAME</div>
     </div>
 
-    <div class="mirror-container" id="mainBox">
+    <div class="crystal-container" id="mainBox">
         <div class="media-center" id="mainMedia">
-            <p id="guide" style="color: rgba(212, 175, 55, 0.3); font-size: 10px; text-align: center; line-height: 2; text-transform: uppercase;">WIND UP TO OPEN DRAWER</p>
+            <p id="guide" style="color: rgba(255, 255, 255, 0.2); font-size: 9px; text-align: center; text-transform: uppercase; letter-spacing: 2px;">Select a slot to start</p>
         </div>
 
         <div class="vanity-glass">
-            <div class="wind-key-wrapper">
-                <div class="wind-key" id="theKey">🗝️</div>
-            </div>
-            
-            <div class="energy-gauge"><div class="energy-fill" id="fill"></div></div>
-            <p style="font-size: 8px; color: #d4af37; margin-top: 8px; font-weight: bold; letter-spacing: 3px; opacity: 0.6; text-transform: uppercase;">POWER</p>
+            <p style="font-size: 7px; color: rgba(255,255,255,0.4); margin: 15px 0 10px; font-weight: bold; letter-spacing: 4px; text-transform: uppercase;">Memory Archives</p>
             
             <div class="drawer-content" id="drawer">
                 <script>
                     for(let i=1; i<=20; i++) {
                         document.write(`
                             <div class="snap-slot" onclick="openUploader(${i})">
-                                <div id="v-pre-${i}" style="width:100%; height:90px; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#444; font-size:8px; text-transform: uppercase;">No Media</div>
-                                <p style="margin-top:10px; font-size:9px; font-weight:bold; color:#d4af37;">SLOT ${String(i).padStart(2, '0')}</p>
+                                <div id="v-pre-${i}" style="width:100%; height:90px; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#333; font-size:7px; text-transform: uppercase;">Empty</div>
+                                <p style="margin-top:10px; font-size:8px; font-weight:bold; color:rgba(255,255,255,0.4);">#${String(i).padStart(2, '0')}</p>
                                 <input type="file" id="m-file-${i}" accept="image/*,video/*" onchange="previewMedia(event, ${i})">
                                 <input type="file" id="a-file-${i}" accept="audio/*" onchange="previewAudio(event, ${i})">
                             </div>
@@ -144,35 +116,16 @@
     <audio id="player" loop></audio>
 
     <script>
-        let energy = 0;
         let isFixed = false;
-        let rotationCount = 0;
         const slots = Array(21).fill(null).map(() => ({ media: null, type: null, audio: null }));
 
-        // 1. 태엽 회전 및 서랍 열기
-        const key = document.getElementById('theKey');
-        const fill = document.getElementById('fill');
-        const drawer = document.getElementById('drawer');
-
-        key.onclick = () => {
-            rotationCount += 360;
-            key.style.transform = `rotate(${rotationCount}deg)`;
-            energy = Math.min(energy + 20, 100);
-            fill.style.width = energy + '%';
-            if (energy >= 100) {
-                drawer.classList.add('open');
-                drawer.scrollLeft = 0; 
-                energy = 100;
-            }
-        };
-
-        // 2. 배경 설정
+        // 1. 배경 설정
         document.getElementById('bgIn').onchange = (e) => {
             const f = e.target.files[0];
             if(f) document.body.style.backgroundImage = `url(${URL.createObjectURL(f)})`;
         };
 
-        // 3. 화면 고정
+        // 2. 화면 고정
         document.getElementById('fixBtn').onclick = () => {
             isFixed = !isFixed;
             const box = document.getElementById('mainBox');
@@ -187,9 +140,9 @@
             }
         };
 
-        // 4. 업로드 및 연동
+        // 3. 업로드 및 연동
         function openUploader(i) {
-            if(confirm(`PAGE ${i}: Upload Image/Video?\n(Cancel to Upload Audio)`)) {
+            if(confirm(`PAGE ${i}: Image/Video?\n(Cancel for Audio)`)) {
                 document.getElementById(`m-file-${i}`).click();
             } else {
                 document.getElementById(`a-file-${i}`).click();
