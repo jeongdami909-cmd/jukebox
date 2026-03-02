@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crystal Infinity Archive</title>
+    <title>Cinematic Sliding Door</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
@@ -13,16 +13,16 @@
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
 
         body {
-            margin: 0; padding: 0; min-height: 100vh;
+            margin: 0; padding: 0; height: 100vh;
             font-family: 'Cinzel', 'Noto Serif KR', serif;
             background: #000 fixed center/cover no-repeat;
             background-image: url('https://images.unsplash.com/photo-1516478950587-8d076cd771ad?q=80&w=2070');
+            overflow: hidden; /* 슬라이딩 패널을 위해 본체 스크롤 방지 */
             display: flex; flex-direction: column; align-items: center;
-            overflow-x: hidden;
         }
 
-        /* 상단 네비게이션 */
-        .nav-bar { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; }
+        /* 상단 메뉴 */
+        .nav-bar { position: fixed; top: 20px; right: 20px; z-index: 1000; }
         .btn-xs {
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
             color: rgba(255, 255, 255, 0.5); padding: 5px 12px; border-radius: 15px;
@@ -30,25 +30,46 @@
             text-transform: uppercase; letter-spacing: 1.5px;
         }
 
-        /* 게시판 리스트 영역: 발밑까지 확장 */
-        .board-container {
-            width: min(95vw, 550px);
-            margin-top: 50px;
-            display: flex; flex-direction: column;
-            padding-bottom: 0; /* 하단 여백 제거 */
-        }
-
-        /* 슬라이딩 셔터 카드 */
-        .shutter-card {
-            position: relative; width: 100%; height: 400px;
+        /* [핵심] 슬라이딩 도어 패널 */
+        .sliding-panel {
+            position: fixed; bottom: 0; width: 100%; height: 90vh;
             background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            overflow: hidden;
-            border-bottom: none; /* 카드 사이 경계 최소화 */
+            backdrop-filter: blur(25px);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 40px 40px 0 0;
+            z-index: 500;
+            display: flex; flex-direction: column; align-items: center;
+            /* 처음에는 발밑으로 숨김 (핸들만 보이게) */
+            transform: translateY(calc(100% - 60px));
+            transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
         }
-        .shutter-card:last-of-type { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
 
-        /* 뒤쪽 미디어 (사진/영상) */
+        /* 패널이 열렸을 때 */
+        .sliding-panel.is-open { transform: translateY(0); }
+
+        /* 슬라이딩 핸들 (UP 버튼) */
+        .panel-handle {
+            width: 100%; height: 60px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; color: #d4af37;
+        }
+        .handle-line { width: 40px; height: 2px; background: rgba(212, 175, 55, 0.5); margin-bottom: 5px; border-radius: 2px; }
+
+        /* 게시판 리스트 스크롤 영역 */
+        .board-scroll-area {
+            width: min(95vw, 550px);
+            flex: 1; overflow-y: auto; padding-bottom: 50px;
+            display: flex; flex-direction: column; gap: 40px;
+        }
+
+        /* 셔터 카드 */
+        .shutter-card {
+            position: relative; width: 100%; height: 380px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px; overflow: hidden;
+        }
+
         .media-back {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1; display: flex; align-items: center; justify-content: center;
@@ -56,41 +77,28 @@
         }
         .media-back video, .media-back img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* 옆으로 밀리는 불투명 회색 덮개 */
         .shutter-cover {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(30, 30, 30, 0.9); /* 불투명 엷은 회색 */
+            background: rgba(40, 40, 40, 0.9);
             backdrop-filter: blur(15px);
             z-index: 5; transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
             padding: 25px; display: flex; flex-direction: column;
         }
-        
-        /* 셔터 오픈 상태 */
-        .shutter-card.open .shutter-cover { transform: translateX(95%); }
+        .shutter-card.open .shutter-cover { transform: translateX(94%); }
 
         .desc-text {
             color: rgba(255, 255, 255, 0.7); font-size: 11px; line-height: 1.8;
-            font-family: 'Noto Serif KR'; overflow-y: auto; flex: 1;
-            outline: none; margin-top: 10px;
+            font-family: 'Noto Serif KR'; overflow-y: auto; flex: 1; outline: none;
         }
 
-        /* 오디오 플레이어 칸 */
-        .audio-slot {
-            margin-top: 15px; display: flex; align-items: center; gap: 8px;
-            background: rgba(255, 255, 255, 0.03); padding: 8px; border-radius: 8px;
-        }
-
-        /* 무한 플러스 버튼: 사이트 맨 아래 고정 */
+        /* 무한 플러스 버튼 */
         .add-btn {
-            width: 100%; height: 60px;
-            background: rgba(255, 255, 255, 0.05);
+            width: 100%; min-height: 60px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #d4af37; font-size: 20px;
+            color: #d4af37; font-size: 18px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.3s;
-            margin-bottom: 0;
+            cursor: pointer;
         }
-        .add-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
         input[type="file"] { display: none; }
     </style>
@@ -101,40 +109,50 @@
         <label class="btn-xs">BG UP<input type="file" id="bgIn" accept="image/*"></label>
     </div>
 
-    <div class="board-container" id="boardList">
-        <div class="shutter-card" id="card-1">
-            <div class="media-back" id="media-1" onclick="triggerUp(1, 'media')">
-                <p style="font-size: 7px; color: rgba(255,255,255,0.2); letter-spacing: 2px;">CLICK TO ADD VIDEO/PHOTO</p>
-            </div>
-            <div class="shutter-cover">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 8px; color: #d4af37; letter-spacing: 3px;">ARCHIVE #01</span>
-                    <button class="btn-xs" onclick="toggleShutter(1)">OPEN</button>
-                </div>
-                <div class="desc-text" contenteditable="true">
-                    여기에 해설을 입력하세요. 이 불투명한 덮개는 옆으로 밀리며 뒤에 숨겨진 미디어를 보여줍니다. 게시판은 사이트 발밑까지 계속해서 추가됩니다.
-                </div>
-                <div class="audio-slot">
-                    <button class="btn-xs" onclick="triggerUp(1, 'audio')">SET MUSIC</button>
-                    <button class="btn-xs" id="play-1" onclick="togglePlay(1)">PLAY</button>
-                    <audio id="player-1" loop></audio>
-                </div>
-            </div>
-            <input type="file" id="media-in-1" accept="image/*,video/*" onchange="loadMedia(event, 1)">
-            <input type="file" id="audio-in-1" accept="audio/*" onchange="loadAudio(event, 1)">
+    <div class="sliding-panel" id="mainPanel">
+        <div class="panel-handle" onclick="togglePanel()">
+            <div class="handle-line"></div>
+            <span id="handleText" style="font-size: 8px; letter-spacing: 3px;">UP / DOWN ARCHIVE</span>
         </div>
-    </div>
 
-    <div class="add-btn" onclick="addNewCard()">+ ADD NEW MEMORY</div>
+        <div class="board-scroll-area" id="boardList">
+            <div class="shutter-card" id="card-1">
+                <div class="media-back" id="media-1" onclick="triggerUp(1, 'media')">
+                    <p style="font-size: 7px; color: rgba(255,255,255,0.2);">TAP TO ADD MEDIA</p>
+                </div>
+                <div class="shutter-cover">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 8px; color: #d4af37; letter-spacing: 3px;">#01 ARCHIVE</span>
+                        <button class="btn-xs" onclick="toggleShutter(1)">OPEN</button>
+                    </div>
+                    <div class="desc-text" contenteditable="true">슬라이딩 도어를 위로 올려 아카이브를 확인하세요.</div>
+                    <div style="margin-top: 15px; display: flex; gap: 8px;">
+                        <button class="btn-xs" onclick="triggerUp(1, 'audio')">SET AUDIO</button>
+                        <button class="btn-xs" id="play-1" onclick="togglePlay(1)">PLAY</button>
+                        <audio id="player-1" loop></audio>
+                    </div>
+                </div>
+                <input type="file" id="media-in-1" accept="image/*,video/*" onchange="loadMedia(event, 1)">
+                <input type="file" id="audio-in-1" accept="audio/*" onchange="loadAudio(event, 1)">
+            </div>
+        </div>
+
+        <div class="add-btn" onclick="addNewCard()">+ ADD NEW MEMORY</div>
+    </div>
 
     <script>
         let cardCount = 1;
 
-        // 배경 업로드
+        // 배경 설정
         document.getElementById('bgIn').onchange = (e) => {
             const f = e.target.files[0];
             if(f) document.body.style.backgroundImage = `url(${URL.createObjectURL(f)})`;
         };
+
+        // [핵심] 슬라이딩 패널 토글
+        function togglePanel() {
+            document.getElementById('mainPanel').classList.toggle('is-open');
+        }
 
         // 셔터 토글
         function toggleShutter(id) {
@@ -150,16 +168,16 @@
             newCard.id = `card-${cardCount}`;
             newCard.innerHTML = `
                 <div class="media-back" id="media-${cardCount}" onclick="triggerUp(${cardCount}, 'media')">
-                    <p style="font-size: 7px; color: rgba(255,255,255,0.2); letter-spacing: 2px;">CLICK TO ADD VIDEO/PHOTO</p>
+                    <p style="font-size: 7px; color: rgba(255,255,255,0.2);">TAP TO ADD MEDIA</p>
                 </div>
                 <div class="shutter-cover">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 8px; color: #d4af37; letter-spacing: 3px;">ARCHIVE #${String(cardCount).padStart(2, '0')}</span>
+                        <span style="font-size: 8px; color: #d4af37; letter-spacing: 3px;">#${String(cardCount).padStart(2, '0')} ARCHIVE</span>
                         <button class="btn-xs" onclick="toggleShutter(${cardCount})">OPEN</button>
                     </div>
-                    <div class="desc-text" contenteditable="true">새로운 기록을 남겨보세요...</div>
-                    <div class="audio-slot">
-                        <button class="btn-xs" onclick="triggerUp(${cardCount}, 'audio')">SET MUSIC</button>
+                    <div class="desc-text" contenteditable="true">새로운 추억을 기록하세요.</div>
+                    <div style="margin-top: 15px; display: flex; gap: 8px;">
+                        <button class="btn-xs" onclick="triggerUp(${cardCount}, 'audio')">SET AUDIO</button>
                         <button class="btn-xs" id="play-${cardCount}" onclick="togglePlay(${cardCount})">PLAY</button>
                         <audio id="player-${cardCount}" loop></audio>
                     </div>
@@ -168,7 +186,6 @@
                 <input type="file" id="audio-in-${cardCount}" accept="audio/*" onchange="loadAudio(event, ${cardCount})">
             `;
             list.appendChild(newCard);
-            window.scrollTo(0, document.body.scrollHeight); // 추가 시 아래로 자동 스크롤
         }
 
         function triggerUp(id, type) { document.getElementById(`${type}-in-${id}`).click(); }
