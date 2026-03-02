@@ -88,11 +88,10 @@
         .media-display { width: 100%; height: 350px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .media-display video, .media-display img { width: 100%; height: 100%; object-fit: cover; border-radius: 30px 30px 0 0; }
         
-        /* 🔥 닫기, 변경, 삭제 버튼이 잘 보이도록 정렬 수정 (다른 디자인엔 영향 없음) */
         .media-inner-nav { 
             width: 100%; flex-grow: 1; min-height: 100px; 
             display: flex; align-items: flex-start; justify-content: center; 
-            gap: 10px; padding-top: 25px; flex-wrap: wrap; 
+            gap: 10px; padding: 25px 15px; flex-wrap: wrap; 
         }
 
         .faint-white { color: rgba(255, 255, 255, 0.3); font-size: 8px; letter-spacing: 3px; text-transform: uppercase; font-weight: bold; }
@@ -133,7 +132,13 @@
         };
         request.onsuccess = e => { db = e.target.result; loadData(); };
 
-        async function saveData(store, data) { const tx = db.transaction(store, "readwrite"); tx.objectStore(store).put(data); }
+        async function saveData(store, data) { 
+            return new Promise((res) => {
+                const tx = db.transaction(store, "readwrite"); 
+                tx.objectStore(store).put(data);
+                tx.oncomplete = () => res();
+            });
+        }
         async function getData(store, id) { return new Promise(res => { const tx = db.transaction(store, "readonly"); const req = tx.objectStore(store).get(id); req.onsuccess = () => res(req.result); }); }
 
         async function loadData() {
@@ -143,20 +148,26 @@
             let cardCount = 0;
             tx.objectStore("slots").openCursor().onsuccess = e => {
                 const cursor = e.target.result;
-                if(cursor) { renderCard(cursor.value); cardIDs.push(cursor.value.id); cardCount++; cursor.continue(); }
+                if(cursor) { 
+                    renderCard(cursor.value); 
+                    if(!cardIDs.includes(cursor.value.id)) cardIDs.push(cursor.value.id); 
+                    cardCount++; 
+                    cursor.continue(); 
+                }
                 else if (cardCount === 0) addNewCard();
             };
         }
 
         function renderCard(data) {
             const list = document.getElementById('boardList');
+            if(document.getElementById(`card-${data.id}`)) return; // 중복 렌더링 방지
+
             const card = document.createElement('div');
             card.className = 'shutter-card';
             card.id = `card-${data.id}`;
             const mediaUrl = data.media ? URL.createObjectURL(data.media) : null;
             const audioUrl = data.audio ? URL.createObjectURL(data.audio) : null;
 
-            // 🔥 안쪽 미디어 네비게이션 버튼을 완벽하게 추가/수정했습니다.
             card.innerHTML = `
                 <div class="media-back">
                     <div class="media-display" onclick="triggerUp(${data.id}, 'media')">
@@ -167,7 +178,6 @@
                         <button class="ghost-btn" onclick="triggerUp(${data.id}, 'media')">CHANGE MEDIA</button>
                         <button class="ghost-btn" onclick="deleteMedia(${data.id})">DEL MEDIA</button>
                         <button class="ghost-btn fix-media ${data.fixed && data.fixed.media ? 'active' : ''}" onclick="fixElement(${data.id}, 'media')">FIX MEDIA</button>
-                        <button class="ghost-btn" style="color:rgba(255,100,100,0.3);" onclick="deleteCard(${data.id})">DEL SLOT</button>
                     </div>
                 </div>
                 <div class="shutter-cover">
@@ -178,12 +188,13 @@
                         <button class="ghost-btn" style="color:rgba(255,100,100,0.3); font-size:6px;" onclick="deleteAudio(${data.id})">DEL MUSIC</button>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <span class="faint-white">#${String(data.id).padStart(2, '0')} ARCHIVE</span>
-                        <div style="display: flex; gap: 5px;">
+                        <div style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end;">
                             <button class="ghost-btn" style="font-size: 5px;" onclick="document.getElementById('text-${data.id}').focus()">EDIT TEXT</button>
                             <button class="ghost-btn" style="font-size: 5px;" onclick="clearText(${data.id})">CLEAR</button>
                             <button class="ghost-btn fix-text ${data.fixed && data.fixed.text ? 'active' : ''}" style="font-size: 5px;" onclick="fixElement(${data.id}, 'text')">FIX TEXT</button>
+                            <button class="ghost-btn" style="font-size: 5px; color:rgba(255,100,100,0.6);" onclick="deleteCard(${data.id})">DEL SLOT</button>
                             <button class="ghost-btn" style="font-size: 5px;" onclick="toggleShutter(${data.id})">OPEN VIEW</button>
                         </div>
                     </div>
@@ -204,11 +215,19 @@
             };
         }
 
+        async function addNewCard() {
+            if(!db) return;
+            const newId = cardIDs.length > 0 ? Math.max(...cardIDs) + 1 : 1;
+            const data = { id: newId, text: "Write your insight...", fixed: { text: false, media: false, audio: false } };
+            await saveData("slots", data);
+            cardIDs.push(newId);
+            renderCard(data);
+        }
+
         async function triggerUp(id, type) {
             const input = document.createElement('input'); 
             input.type = 'file'; 
             input.accept = type === 'media' ? 'image/*,video/*' : 'audio/mp3,audio/mpeg'; 
-            
             input.onchange = async e => {
                 const f = e.target.files[0]; if(!f) return;
                 const data = await getData("slots", id); data[type] = f; await saveData("slots", data);
@@ -226,9 +245,16 @@
             if(p.paused) { p.play(); currentAudio = p; b.innerText = "PAUSE"; } else { p.pause(); b.innerText = "PLAY"; currentAudio = null; }
         }
 
-        async function fixElement(id, type) { const data = await getData("slots", id); const btn = document.querySelector(`#card-${id} .fix-${type}`); btn.classList.toggle('active'); if(!data.fixed) data.fixed = {}; data.fixed[type] = btn.classList.contains('active'); if(type==='text') data.text = document.getElementById('text-'+id).innerText; await saveData("slots", data); }
+        async function fixElement(id, type) { 
+            const data = await getData("slots", id); 
+            const btn = document.querySelector(`#card-${id} .fix-${type}`); 
+            btn.classList.toggle('active'); 
+            if(!data.fixed) data.fixed = {}; 
+            data.fixed[type] = btn.classList.contains('active'); 
+            if(type==='text') data.text = document.getElementById('text-'+id).innerText; 
+            await saveData("slots", data); 
+        }
         
-        // 🔥 미디어(영상/이미지) 삭제 기능 추가
         async function deleteMedia(id) { 
             if(confirm("Delete media?")) { 
                 const d = await getData("slots", id); 
@@ -242,7 +268,6 @@
 
         async function deleteAudio(id) { if(confirm("Delete music?")) { const d = await getData("slots", id); d.audio = null; if(d.fixed) d.fixed.audio = false; await saveData("slots", d); document.getElementById(`player-${id}`).src = ""; document.querySelector(`#card-${id} .fix-audio`).classList.remove('active'); } }
         async function deleteCard(id) { if(confirm("Delete slot?")) { const tx = db.transaction("slots", "readwrite"); tx.objectStore("slots").delete(id); document.getElementById(`card-${id}`).remove(); cardIDs = cardIDs.filter(x => x !== id); } }
-        function addNewCard() { const newId = cardIDs.length > 0 ? Math.max(...cardIDs) + 1 : 1; cardIDs.push(newId); const data = { id: newId, text: "Write your insight...", fixed: {} }; saveData("slots", data); renderCard(data); }
         function togglePanel() { document.getElementById('mainPanel').classList.toggle('is-open'); }
         function toggleShutter(id) { document.getElementById(`card-${id}`).classList.toggle('open'); }
         document.getElementById('bgIn').onchange = async e => { const f = e.target.files[0]; if(f) { await saveData("settings", { id: "bg", file: f }); location.reload(); } };
