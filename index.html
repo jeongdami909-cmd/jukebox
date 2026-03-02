@@ -3,132 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinematic Sliding Door</title>
+    <title>Amber & Brass Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+KR:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+KR:wght@400;700&display=swap');
 
         * { box-sizing: border-box; }
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
 
         body {
             margin: 0; padding: 0; height: 100vh;
-            font-family: 'Cinzel', 'Noto Serif KR', serif;
+            font-family: 'Cinzel', serif;
             background: #000 fixed center/cover no-repeat;
             background-image: url('https://images.unsplash.com/photo-1516478950587-8d076cd771ad?q=80&w=2070');
-            overflow: hidden; /* 슬라이딩 패널을 위해 본체 스크롤 방지 */
-            display: flex; flex-direction: column; align-items: center;
+            overflow: hidden; display: flex; flex-direction: column; align-items: center;
         }
 
-        /* 상단 메뉴 */
-        .nav-bar { position: fixed; top: 20px; right: 20px; z-index: 1000; }
-        .btn-xs {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.5); padding: 5px 12px; border-radius: 15px;
-            font-size: 8px; cursor: pointer; backdrop-filter: blur(10px);
-            text-transform: uppercase; letter-spacing: 1.5px;
+        /* 1. 입체적인 황동 버튼 스타일 (Edit, Delete, Fix) */
+        .brass-btn {
+            background: linear-gradient(145deg, #f3d078, #b08a2e);
+            border: 1px solid #3e2723; color: #1a0f0a;
+            padding: 4px 10px; border-radius: 4px; font-size: 8px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-transform: uppercase; transition: 0.2s;
         }
+        .brass-btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+        .brass-btn:active { transform: translateY(1px); box-shadow: none; }
 
-        /* [핵심] 슬라이딩 도어 패널 */
+        /* 2. 호박색 투명 손잡이 (Amber Glass Handle) */
         .sliding-panel {
             position: fixed; bottom: 0; width: 100%; height: 90vh;
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(25px);
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 40px 40px 0 0;
-            z-index: 500;
-            display: flex; flex-direction: column; align-items: center;
-            /* 처음에는 발밑으로 숨김 (핸들만 보이게) */
-            transform: translateY(calc(100% - 60px));
-            transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(30px);
+            border-top: 2px solid #d4af37; border-radius: 40px 40px 0 0;
+            z-index: 500; display: flex; flex-direction: column; align-items: center;
+            transform: translateY(calc(100% - 70px)); transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
         }
-
-        /* 패널이 열렸을 때 */
         .sliding-panel.is-open { transform: translateY(0); }
 
-        /* 슬라이딩 핸들 (UP 버튼) */
         .panel-handle {
-            width: 100%; height: 60px;
+            width: 100%; height: 70px; cursor: pointer;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; color: #d4af37;
+            background: rgba(212, 175, 55, 0.15); /* 호박색 틴팅 */
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
         }
-        .handle-line { width: 40px; height: 2px; background: rgba(212, 175, 55, 0.5); margin-bottom: 5px; border-radius: 2px; }
+        .handle-bar { width: 50px; height: 4px; background: #d4af37; border-radius: 2px; margin-bottom: 8px; box-shadow: 0 0 10px #d4af37; }
 
-        /* 게시판 리스트 스크롤 영역 */
-        .board-scroll-area {
-            width: min(95vw, 550px);
-            flex: 1; overflow-y: auto; padding-bottom: 50px;
-            display: flex; flex-direction: column; gap: 40px;
-        }
-
-        /* 셔터 카드 */
+        /* 3. 선명한 그레이 유리 셔터 (Board Cover) */
+        .board-area { width: min(95vw, 550px); flex: 1; overflow-y: auto; padding: 20px 0 100px; display: flex; flex-direction: column; gap: 30px; }
+        
         .shutter-card {
-            position: relative; width: 100%; height: 380px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px; overflow: hidden;
+            position: relative; width: 100%; height: 400px;
+            background: #000; border: 1px solid #d4af37; border-radius: 15px; overflow: hidden;
         }
-
-        .media-back {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; display: flex; align-items: center; justify-content: center;
-            background: #000;
-        }
-        .media-back video, .media-back img { width: 100%; height: 100%; object-fit: cover; }
 
         .shutter-cover {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(40, 40, 40, 0.9);
-            backdrop-filter: blur(15px);
-            z-index: 5; transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+            background: rgba(50, 50, 50, 0.95); /* 선명한 그레이 */
+            backdrop-filter: blur(10px); z-index: 5;
             padding: 25px; display: flex; flex-direction: column;
+            border-right: 2px solid #d4af37; transition: transform 0.8s ease;
         }
-        .shutter-card.open .shutter-cover { transform: translateX(94%); }
+        .shutter-card.open .shutter-cover { transform: translateX(93%); }
 
-        .desc-text {
-            color: rgba(255, 255, 255, 0.7); font-size: 11px; line-height: 1.8;
-            font-family: 'Noto Serif KR'; overflow-y: auto; flex: 1; outline: none;
-        }
+        .media-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .media-back video, .media-back img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* 무한 플러스 버튼 */
-        .add-btn {
-            width: 100%; min-height: 60px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #d4af37; font-size: 18px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-        }
-
+        .top-nav { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; }
         input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="nav-bar">
-        <label class="btn-xs">BG UP<input type="file" id="bgIn" accept="image/*"></label>
+    <div class="top-nav">
+        <label class="brass-btn" style="padding: 8px 15px;">SET BG<input type="file" id="bgIn" accept="image/*"></label>
     </div>
 
     <div class="sliding-panel" id="mainPanel">
         <div class="panel-handle" onclick="togglePanel()">
-            <div class="handle-line"></div>
-            <span id="handleText" style="font-size: 8px; letter-spacing: 3px;">UP / DOWN ARCHIVE</span>
+            <div class="handle-bar"></div>
+            <span style="font-size: 9px; color: #d4af37; letter-spacing: 4px; font-weight: bold;">PULL TO OPEN ARCHIVE</span>
         </div>
 
-        <div class="board-scroll-area" id="boardList">
+        <div class="board-area" id="boardList">
             <div class="shutter-card" id="card-1">
                 <div class="media-back" id="media-1" onclick="triggerUp(1, 'media')">
-                    <p style="font-size: 7px; color: rgba(255,255,255,0.2);">TAP TO ADD MEDIA</p>
+                    <p style="text-align: center; margin-top: 150px; color: #555; font-size: 10px;">TAP TO ADD MEDIA</p>
                 </div>
                 <div class="shutter-cover">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 8px; color: #d4af37; letter-spacing: 3px;">#01 ARCHIVE</span>
-                        <button class="btn-xs" onclick="toggleShutter(1)">OPEN</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #d4af37; padding-bottom: 10px;">
+                        <span style="font-size: 10px; color: #d4af37; letter-spacing: 3px; font-weight: bold;">ARCHIVE #01</span>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="brass-btn" onclick="toggleShutter(1)">OPEN</button>
+                            <button class="brass-btn">EDIT</button>
+                            <button class="brass-btn">FIX</button>
+                            <button class="brass-btn" style="background: #8b0000; color: #fff;">DEL</button>
+                        </div>
                     </div>
-                    <div class="desc-text" contenteditable="true">슬라이딩 도어를 위로 올려 아카이브를 확인하세요.</div>
-                    <div style="margin-top: 15px; display: flex; gap: 8px;">
-                        <button class="btn-xs" onclick="triggerUp(1, 'audio')">SET AUDIO</button>
-                        <button class="btn-xs" id="play-1" onclick="togglePlay(1)">PLAY</button>
+                    <div style="flex:1; color: #ccc; font-size: 12px; font-family: 'Noto Serif KR'; margin-top: 15px;" contenteditable="true">
+                        이곳에 해설을 입력하세요. 황동 버튼들과 그레이 셔터가 이제 선명하게 보입니다.
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid rgba(212,175,55,0.2); padding-top: 10px;">
+                        <button class="brass-btn" onclick="triggerUp(1, 'audio')">SET MUSIC</button>
+                        <button class="brass-btn" id="play-1" onclick="togglePlay(1)">PLAY</button>
                         <audio id="player-1" loop></audio>
                     </div>
                 </div>
@@ -137,7 +114,9 @@
             </div>
         </div>
 
-        <div class="add-btn" onclick="addNewCard()">+ ADD NEW MEMORY</div>
+        <div style="width: 100%; height: 60px; display: flex; align-items: center; justify-content: center; border-top: 1px solid rgba(212,175,55,0.2);">
+            <button class="brass-btn" style="padding: 10px 40px; font-size: 14px;" onclick="addNewCard()">+ ADD NEW</button>
+        </div>
     </div>
 
     <script>
@@ -149,15 +128,11 @@
             if(f) document.body.style.backgroundImage = `url(${URL.createObjectURL(f)})`;
         };
 
-        // [핵심] 슬라이딩 패널 토글
-        function togglePanel() {
-            document.getElementById('mainPanel').classList.toggle('is-open');
-        }
+        // 슬라이딩 패널 토글
+        function togglePanel() { document.getElementById('mainPanel').classList.toggle('is-open'); }
 
         // 셔터 토글
-        function toggleShutter(id) {
-            document.getElementById(`card-${id}`).classList.toggle('open');
-        }
+        function toggleShutter(id) { document.getElementById(`card-${id}`).classList.toggle('open'); }
 
         // 무한 추가
         function addNewCard() {
@@ -167,18 +142,21 @@
             newCard.className = 'shutter-card';
             newCard.id = `card-${cardCount}`;
             newCard.innerHTML = `
-                <div class="media-back" id="media-${cardCount}" onclick="triggerUp(${cardCount}, 'media')">
-                    <p style="font-size: 7px; color: rgba(255,255,255,0.2);">TAP TO ADD MEDIA</p>
-                </div>
+                <div class="media-back" id="media-${cardCount}" onclick="triggerUp(${cardCount}, 'media')"></div>
                 <div class="shutter-cover">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 8px; color: #d4af37; letter-spacing: 3px;">#${String(cardCount).padStart(2, '0')} ARCHIVE</span>
-                        <button class="btn-xs" onclick="toggleShutter(${cardCount})">OPEN</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #d4af37; padding-bottom: 10px;">
+                        <span style="font-size: 10px; color: #d4af37; letter-spacing: 3px; font-weight: bold;">ARCHIVE #${String(cardCount).padStart(2, '0')}</span>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="brass-btn" onclick="toggleShutter(${cardCount})">OPEN</button>
+                            <button class="brass-btn">EDIT</button>
+                            <button class="brass-btn">FIX</button>
+                            <button class="brass-btn" style="background: #8b0000; color: #fff;">DEL</button>
+                        </div>
                     </div>
-                    <div class="desc-text" contenteditable="true">새로운 추억을 기록하세요.</div>
-                    <div style="margin-top: 15px; display: flex; gap: 8px;">
-                        <button class="btn-xs" onclick="triggerUp(${cardCount}, 'audio')">SET AUDIO</button>
-                        <button class="btn-xs" id="play-${cardCount}" onclick="togglePlay(${cardCount})">PLAY</button>
+                    <div style="flex:1; color: #ccc; font-size: 12px; font-family: 'Noto Serif KR'; margin-top: 15px;" contenteditable="true">새로운 기록...</div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid rgba(212,175,55,0.2); padding-top: 10px;">
+                        <button class="brass-btn" onclick="triggerUp(${cardCount}, 'audio')">SET MUSIC</button>
+                        <button class="brass-btn" id="play-${cardCount}" onclick="togglePlay(${cardCount})">PLAY</button>
                         <audio id="player-${cardCount}" loop></audio>
                     </div>
                 </div>
@@ -189,7 +167,6 @@
         }
 
         function triggerUp(id, type) { document.getElementById(`${type}-in-${id}`).click(); }
-
         function loadMedia(e, id) {
             const f = e.target.files[0];
             if(f) {
@@ -198,12 +175,10 @@
                 back.innerHTML = f.type.startsWith('video') ? `<video src="${url}" autoplay loop muted></video>` : `<img src="${url}">`;
             }
         }
-
         function loadAudio(e, id) {
             const f = e.target.files[0];
             if(f) document.getElementById(`player-${id}`).src = URL.createObjectURL(f);
         }
-
         function togglePlay(id) {
             const p = document.getElementById(`player-${id}`);
             const b = document.getElementById(`play-${id}`);
