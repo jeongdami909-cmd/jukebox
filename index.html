@@ -3,219 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA-GOL: Real Music Box</title>
+    <title>Real Ballerina Music Box</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* 실제 고급 나무 질감 배경 */
         body { 
-            background: radial-gradient(circle at center, #3e2723 0%, #1a1005 100%); 
-            font-family: 'Noto Serif KR', serif; 
-            color: #d7ccc8; 
-            overflow: hidden;
+            background-color: #2c1a12;
+            background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Georgia', serif;
         }
 
-        /* 3D 원형 무대 설정 */
-        .stage-container {
-            perspective: 1000px; /* 원근감 부여 */
-        }
-
-        .music-box-cylinder {
+        /* 오르골 본체 (빈티지 나무 상자 느낌) */
+        .music-box {
+            background: linear-gradient(145deg, #3e2723, #1a1005);
+            border: 4px solid #5d4037;
+            border-radius: 20px;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
+            padding: 40px;
+            width: 450px;
+            text-align: center;
             position: relative;
-            width: 320px;
-            height: 320px;
-            transform-style: preserve-3d;
-            transform: rotateX(60deg) rotateZ(0deg); /* 무대를 눕혀서 입체감 형성 */
-            transition: transform 1s ease-out;
         }
 
-        /* 오르골 재생 시 회전 애니메이션 */
-        .playing .music-box-cylinder {
-            animation: cylinderSpin 15s linear infinite;
+        /* 사진이 들어가는 턴테이블/무대 */
+        .stage {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            border: 8px solid #bcaaa4; /* 앤틱 금속 테두리 */
+            box-shadow: 0 15px 25px rgba(0,0,0,0.6);
+            overflow: hidden;
+            position: relative;
         }
 
-        @keyframes cylinderSpin {
-            0% { transform: rotateX(60deg) rotateZ(0deg); }
-            100% { transform: rotateX(60deg) rotateZ(360deg); }
-        }
-
-        /* 꽃밭 바닥 */
-        .stage-base {
-            position: absolute;
+        /* 실제 발레리나 사진 */
+        #ballerina-photo {
             width: 100%;
             height: 100%;
-            border-radius: 50%;
-            background: radial-gradient(circle, #556b2f 30%, #3e4f24 80%);
-            border: 8px solid #8d6e63;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 20px 50px rgba(0,0,0,0.6);
+            object-fit: cover;
+            /* 초기 상태: 정지 */
+            transition: transform 0.5s ease;
         }
 
-        /* 무대 위 캐릭터 (회전 시 똑바로 서 보이도록 역회전) */
-        .character-layer {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotateX(-60deg);
-            display: flex;
-            align-items: flex-end;
-            gap: 20px;
-            font-size: 5rem;
-            text-shadow: 0px 10px 10px rgba(0,0,0,0.5);
+        /* 사진이 돌아가는 애니메이션 (태엽을 감았을 때) */
+        .spinning {
+            animation: spinPhoto 10s linear infinite;
         }
 
-        /* 금속 빗살(Comb) 장식 */
-        .metal-comb {
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 40px;
-            background: linear-gradient(to bottom, #cfd8dc, #90a4ae);
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            z-index: 10;
+        @keyframes spinPhoto {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        .comb-tooth {
-            width: 4px;
-            height: 100%;
-            background: #b0bec5;
-            border-right: 1px solid #78909c;
-        }
-
-        /* 황동 버튼 스타일 */
-        .brass-btn {
-            background: linear-gradient(145deg, #a1887f, #5d4037);
+        /* 묵직한 황동 태엽 버튼 */
+        .wind-up-key {
+            background: radial-gradient(circle, #ffd54f, #ffb300, #ff8f00);
             border: 2px solid #3e2723;
-            box-shadow: inset 2px 2px 5px rgba(255,255,255,0.2), 3px 3px 10px rgba(0,0,0,0.5);
-            transition: all 0.1s;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5), inset 0 5px 10px rgba(255,255,255,0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            transition: all 0.2s;
         }
-        .brass-btn:active, .brass-btn.active {
-            transform: translateY(4px);
-            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.6), 1px 1px 2px rgba(0,0,0,0.5);
-            background: linear-gradient(145deg, #8d6e63, #4e342e);
+        .wind-up-key:active {
+            transform: scale(0.9) rotate(45deg); /* 누를 때 실제로 태엽이 감기는 듯한 회전 */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* 20개의 리얼한 곡 선택 버튼 */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #5d4037;
+        }
+
+        .song-btn {
+            background: linear-gradient(to bottom, #d7ccc8, #8d6e63);
+            border: 1px solid #3e2723;
+            color: #271c19;
+            font-weight: bold;
+            padding: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 2px 3px rgba(255,255,255,0.3);
+        }
+        .song-btn:active, .song-btn.active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+            background: linear-gradient(to bottom, #a1887f, #5d4037);
+            color: white;
+        }
+
+        /* 현재 재생 중인 곡 표시 액정 */
+        .display-screen {
+            background: #1a1005;
+            color: #ffd54f;
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px inset #5d4037;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 16px;
+            letter-spacing: 1px;
         }
     </style>
 </head>
-<body class="h-screen flex flex-row p-8 gap-8 items-center justify-center">
+<body>
 
-    <aside class="w-1/4 h-full bg-[#271c19] border-2 border-[#5d4037] p-8 rounded-lg shadow-2xl relative overflow-hidden">
-        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')]"></div>
-        <h2 class="text-[#d7ccc8] text-2xl font-bold mb-6 border-b border-[#5d4037] pb-4">오르골의 기록</h2>
-        <p id="story-text" class="text-[#bcaaa4] leading-loose text-sm relative z-10">
-            "버튼을 누르자 태엽이 감기는 묵직한 소리가 났다. <br><br>
-            빨간 두건을 쓴 소녀는 바구니를 고쳐 매고 숲속 빈터로 나섰고, 
-            기다렸다는 듯 갈색 여우가 다가와 꼬리를 흔들었다. 
-            발밑의 노란 꽃들은 금속성의 맑은 소리를 내며 흔들리기 시작했다..."
-        </p>
-    </aside>
-
-    <main class="flex-1 flex flex-col items-center justify-center relative">
-        <div class="stage-container" id="orgel-stage">
-            <div class="music-box-cylinder">
-                <div class="stage-base"></div>
-                <div class="absolute top-1/4 left-1/4 text-3xl">🌼</div>
-                <div class="absolute bottom-1/4 right-1/4 text-3xl">🌻</div>
-                <div class="absolute top-1/2 right-10 text-3xl">🌷</div>
-                
-                <div class="character-layer">
-                    <div title="빨간 두건 소녀와 바구니">👧🧺</div>
-                    <div title="여우">🦊</div>
-                </div>
-            </div>
-            
-            <div class="metal-comb">
-                <div class="comb-tooth"></div><div class="comb-tooth"></div><div class="comb-tooth"></div>
-                <div class="comb-tooth"></div><div class="comb-tooth"></div><div class="comb-tooth"></div>
-                <div class="comb-tooth"></div><div class="comb-tooth"></div><div class="comb-tooth"></div>
-                <div class="comb-tooth"></div><div class="comb-tooth"></div><div class="comb-tooth"></div>
-            </div>
+    <div class="music-box">
+        
+        <div class="display-screen" id="current-track-display">
+            TRACK 01 READY...
         </div>
 
-        <button id="play-btn" class="mt-16 brass-btn w-24 h-24 rounded-full flex flex-col items-center justify-center text-[#eefeeb]">
-            <span class="text-4xl">⚙️</span>
-            <span class="text-[10px] uppercase tracking-widest mt-1 font-bold text-[#d7ccc8]">Play</span>
+        <div class="stage">
+            <img id="ballerina-photo" src="https://images.unsplash.com/photo-1516478950587-8d076cd771ad?q=80&w=800&auto=format&fit=crop" alt="Ballerina Music Box">
+        </div>
+
+        <button class="wind-up-key" id="wind-up-btn" title="태엽 감기 (재생/정지)">
+            🗝️
         </button>
-    </main>
 
-    <aside class="w-1/4 h-full flex flex-col gap-6">
-        <div class="bg-[#271c19] border-2 border-[#5d4037] p-6 rounded-lg text-center shadow-xl relative cursor-pointer" id="owl-clock">
-            <div class="text-6xl mb-4 transition-transform hover:scale-110">🦉</div>
-            <div class="text-[#d7ccc8] font-bold text-3xl tracking-wider" id="current-time">00:00</div>
-            <p class="text-xs text-[#8d6e63] mt-2">매시간 정각, 부엉이가 시간을 알립니다.</p>
-        </div>
+        <div class="button-grid" id="button-container">
+            </div>
 
-        <div class="grid grid-cols-4 gap-3 flex-1">
-            <script>
-                // 20개의 버튼 동적 생성
-                for(let i=1; i<=20; i++) {
-                    document.write(`
-                        <button class="brass-btn rounded-md text-[#d7ccc8] font-bold text-sm flex items-center justify-center hover:text-white" onclick="selectSong(${i}, this)">
-                            ${i}
-                        </button>
-                    `);
-                }
-            </script>
-        </div>
-    </aside>
+        <audio id="orgel-audio" loop preload="auto"></audio>
+
+    </div>
 
     <script>
-        const playBtn = document.getElementById('play-btn');
-        const orgelStage = document.getElementById('orgel-stage');
-        const owlClock = document.getElementById('owl-clock');
+        const ballerinaPhoto = document.getElementById('ballerina-photo');
+        const windUpBtn = document.getElementById('wind-up-btn');
+        const audioPlayer = document.getElementById('orgel-audio');
+        const buttonContainer = document.getElementById('button-container');
+        const displayScreen = document.getElementById('current-track-display');
+
         let isPlaying = false;
+        let currentTrack = 1;
 
-        // 재생/정지 토글 기능
-        playBtn.addEventListener('click', () => {
-            isPlaying = !isPlaying;
-            if(isPlaying) {
-                orgelStage.classList.add('playing');
-                playBtn.classList.add('active');
-                // TODO: 실제 오르골 오디오 파일 재생 코드 추가
-            } else {
-                orgelStage.classList.remove('playing');
-                playBtn.classList.remove('active');
-                // TODO: 오디오 정지
-            }
-        });
+        // 무료 오르골 사운드 샘플 (테스트용으로 3개 곡 번갈아 적용, 실제 앱에서는 20개 고유 링크 필요)
+        const musicLinks = [
+            "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=music-box-101186.mp3",
+            "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3?filename=music-box-creep-122703.mp3",
+            "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3?filename=music-box-spooky-82672.mp3"
+        ];
 
-        // 20곡 버튼 클릭 시 효과
-        function selectSong(num, btn) {
-            // 모든 버튼의 액티브 효과 제거
-            document.querySelectorAll('.brass-btn').forEach(b => b.classList.remove('active'));
-            // 누른 버튼만 액티브 처리
-            btn.classList.add('active');
-            
-            // 이야기 텍스트 변경 (예시)
-            const storyText = document.getElementById('story-text');
-            storyText.innerHTML = `Track ${num} 이(가) 선택되었습니다.<br><br>새로운 금속 실린더가 장착되는 소리가 들립니다. 소녀와 여우는 잠시 숨을 고르고 다음 이야기를 기다립니다...`;
-            
-            // 곡이 바뀌면 자동으로 재생 시작
-            if(!isPlaying) playBtn.click();
+        // 20개 버튼 생성
+        for(let i = 1; i <= 20; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'song-btn';
+            btn.innerText = i;
+            if(i === 1) btn.classList.add('active'); // 1번 곡 기본 선택
+
+            btn.onclick = () => {
+                // 곡 변경
+                currentTrack = i;
+                
+                // 버튼 스타일 변경
+                document.querySelectorAll('.song-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // 액정 표시 변경
+                displayScreen.innerText = `PLAYING TRACK ${String(i).padStart(2, '0')}`;
+                
+                // 곡 설정 (임시로 3개 곡을 반복해서 할당)
+                audioPlayer.src = musicLinks[(i - 1) % 3];
+                
+                // 만약 재생 중이었다면 바로 새 곡 재생
+                if(isPlaying) {
+                    audioPlayer.play();
+                }
+            };
+            buttonContainer.appendChild(btn);
         }
 
-        // 부엉이 시계 및 클릭 이벤트
-        owlClock.addEventListener('click', () => {
-            alert("부엉이가 날개를 퍼덕이며 '푸훗- 푸훗-' 깊은 울림의 종소리를 냅니다.");
-            // TODO: 부엉이 종소리 오디오 재생
+        // 초기 1번 곡 셋팅
+        audioPlayer.src = musicLinks[0];
+
+        // 태엽 감기 클릭 이벤트 (재생/정지)
+        windUpBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                // 정지
+                audioPlayer.pause();
+                ballerinaPhoto.classList.remove('spinning'); // 사진 회전 멈춤
+                displayScreen.innerText = `TRACK ${String(currentTrack).padStart(2, '0')} PAUSED`;
+            } else {
+                // 재생
+                audioPlayer.play();
+                ballerinaPhoto.classList.add('spinning'); // 사진 회전 시작
+                displayScreen.innerText = `PLAYING TRACK ${String(currentTrack).padStart(2, '0')}`;
+            }
+            isPlaying = !isPlaying;
         });
 
-        // 실제 시계 연동
-        setInterval(() => {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('current-time').innerText = `${hours}:${minutes}`;
-            
-            // 정각 알림 로직 (예: 매 분 00초에 알림 - 테스트를 위해 분 단위로 설정 가능)
-            if(now.getMinutes() === 0 && now.getSeconds() === 0) {
-                console.log("정각입니다! 부엉이가 웁니다.");
-                // 정각 오디오 재생 로직이 들어갈 곳
-            }
-        }, 1000);
     </script>
 </body>
 </html>
