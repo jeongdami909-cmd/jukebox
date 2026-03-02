@@ -43,19 +43,16 @@
         .panel-handle { width: 100%; height: 70px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
         .handle-bar { width: 40px; height: 1px; background: rgba(255, 255, 255, 0.2); margin-bottom: 8px; }
 
-        /* 🔥 스크롤 영역: 마지막 카드가 잘리지 않도록 구조 수정 */
         .board-area { 
             width: min(95vw, 550px); flex: 1; 
             overflow-y: auto; overflow-x: hidden;
             padding: 40px 0; display: flex; flex-direction: column; gap: 60px; 
         }
         
-        /* 🔥 마지막 카드가 바닥에 딱 붙어서 잘리는 현상 방지용 투명 박스 */
         .board-area::after {
             content: ""; display: block; height: 120px; flex-shrink: 0;
         }
         
-        /* 🔥 모든 클리핑/오버플로우 제한 완전 삭제 */
         .shutter-card {
             position: relative; width: 100%; 
             height: auto; min-height: 450px; flex-shrink: 0;
@@ -64,20 +61,18 @@
             display: flex; flex-direction: column;
         }
 
-        /* 🔥 하단 패딩 80px로 넉넉하게! 글씨가 바닥에 절대 안 닿음 */
         .shutter-cover {
             position: relative; width: 100%; 
             height: auto; min-height: 450px; 
             background: rgba(30, 30, 30, 0.98); backdrop-filter: blur(25px); z-index: 20;
-            padding: 45px 40px 80px 40px; /* 아래쪽 여백 엄청 늘림! */
-            border-radius: 30px; /* 카드가 모서리 둥글기를 살리기 위해 추가 */
+            padding: 45px 40px 80px 40px; 
+            border-radius: 30px; 
             border-right: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.8s ease;
         }
         .shutter-card.open .shutter-cover { transform: translateX(100%); position: relative; }
 
         .desc-container { position: relative; margin-top: 25px; display: flex; flex-direction: column; flex-grow: 1; }
         
-        /* 🔥 높이 무한대 보장, 단어 줄바꿈 완벽 적용 */
         .desc-text { 
             color: rgba(255, 255, 255, 0.5); font-size: 12px; line-height: 2; 
             font-family: 'Noto Serif KR'; outline: none; 
@@ -89,16 +84,20 @@
             text-align: left;
         }
 
-        /* 안쪽 미디어 관리창 */
         .media-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex; flex-direction: column; }
         .media-display { width: 100%; height: 350px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .media-display video, .media-display img { width: 100%; height: 100%; object-fit: cover; border-radius: 30px 30px 0 0; }
-        .media-inner-nav { width: 100%; flex-grow: 1; min-height: 100px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        
+        /* 🔥 닫기, 변경, 삭제 버튼이 잘 보이도록 정렬 수정 (다른 디자인엔 영향 없음) */
+        .media-inner-nav { 
+            width: 100%; flex-grow: 1; min-height: 100px; 
+            display: flex; align-items: flex-start; justify-content: center; 
+            gap: 10px; padding-top: 25px; flex-wrap: wrap; 
+        }
 
         .faint-white { color: rgba(255, 255, 255, 0.3); font-size: 8px; letter-spacing: 3px; text-transform: uppercase; font-weight: bold; }
         input[type="file"] { display: none; }
 
-        /* 상단 음악 및 제어 바 */
         .top-control-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
@@ -157,14 +156,16 @@
             const mediaUrl = data.media ? URL.createObjectURL(data.media) : null;
             const audioUrl = data.audio ? URL.createObjectURL(data.audio) : null;
 
+            // 🔥 안쪽 미디어 네비게이션 버튼을 완벽하게 추가/수정했습니다.
             card.innerHTML = `
                 <div class="media-back">
                     <div class="media-display" onclick="triggerUp(${data.id}, 'media')">
                         ${data.media ? (data.media.type.startsWith('video') ? `<video src="${mediaUrl}" autoplay loop muted></video>` : `<img src="${mediaUrl}">`) : `<p style="color:rgba(255,255,255,0.1); font-size:7px;">ADD MEDIA</p>`}
                     </div>
                     <div class="media-inner-nav">
-                        <button class="ghost-btn" onclick="toggleShutter(${data.id})">CLOSE</button>
-                        <button class="ghost-btn" onclick="triggerUp(${data.id}, 'media')">EDIT</button>
+                        <button class="ghost-btn" onclick="toggleShutter(${data.id})">CLOSE VIEW</button>
+                        <button class="ghost-btn" onclick="triggerUp(${data.id}, 'media')">CHANGE MEDIA</button>
+                        <button class="ghost-btn" onclick="deleteMedia(${data.id})">DEL MEDIA</button>
                         <button class="ghost-btn fix-media ${data.fixed && data.fixed.media ? 'active' : ''}" onclick="fixElement(${data.id}, 'media')">FIX MEDIA</button>
                         <button class="ghost-btn" style="color:rgba(255,100,100,0.3);" onclick="deleteCard(${data.id})">DEL SLOT</button>
                     </div>
@@ -226,6 +227,19 @@
         }
 
         async function fixElement(id, type) { const data = await getData("slots", id); const btn = document.querySelector(`#card-${id} .fix-${type}`); btn.classList.toggle('active'); if(!data.fixed) data.fixed = {}; data.fixed[type] = btn.classList.contains('active'); if(type==='text') data.text = document.getElementById('text-'+id).innerText; await saveData("slots", data); }
+        
+        // 🔥 미디어(영상/이미지) 삭제 기능 추가
+        async function deleteMedia(id) { 
+            if(confirm("Delete media?")) { 
+                const d = await getData("slots", id); 
+                d.media = null; 
+                if(d.fixed) d.fixed.media = false; 
+                await saveData("slots", d); 
+                document.querySelector(`#card-${id} .media-display`).innerHTML = `<p style="color:rgba(255,255,255,0.1); font-size:7px;">ADD MEDIA</p>`; 
+                document.querySelector(`#card-${id} .fix-media`).classList.remove('active'); 
+            } 
+        }
+
         async function deleteAudio(id) { if(confirm("Delete music?")) { const d = await getData("slots", id); d.audio = null; if(d.fixed) d.fixed.audio = false; await saveData("slots", d); document.getElementById(`player-${id}`).src = ""; document.querySelector(`#card-${id} .fix-audio`).classList.remove('active'); } }
         async function deleteCard(id) { if(confirm("Delete slot?")) { const tx = db.transaction("slots", "readwrite"); tx.objectStore("slots").delete(id); document.getElementById(`card-${id}`).remove(); cardIDs = cardIDs.filter(x => x !== id); } }
         function addNewCard() { const newId = cardIDs.length > 0 ? Math.max(...cardIDs) + 1 : 1; cardIDs.push(newId); const data = { id: newId, text: "Write your insight...", fixed: {} }; saveData("slots", data); renderCard(data); }
