@@ -84,14 +84,23 @@
             text-align: left;
         }
 
+        /* 🔥 수정된 부분: 영상이 카드 전체를 채우게 변경 */
         .media-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex; flex-direction: column; }
-        .media-display { width: 100%; height: 350px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .media-display video, .media-display img { width: 100%; height: 100%; object-fit: cover; border-radius: 30px 30px 0 0; }
+        .media-display { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
+        .media-display video, .media-display img { width: 100%; height: 100%; object-fit: cover; border-radius: 30px; }
         
+        /* 🔥 수정된 부분: 버튼을 영상 위(상단)에 띄우기 (absolute 적용) */
         .media-inner-nav { 
-            width: 100%; flex-grow: 1; min-height: 100px; 
-            display: flex; align-items: center; justify-content: center; 
-            gap: 10px; padding: 20px; flex-wrap: wrap; 
+            position: absolute; top: 25px; left: 0; width: 100%; z-index: 10;
+            display: flex; align-items: flex-start; justify-content: center; 
+            gap: 10px; padding: 0 15px; flex-wrap: wrap; 
+            pointer-events: none; /* 빈 공간 클릭 시 아래 영상 클릭되게 설정 */
+        }
+        /* 버튼들은 영상 위에서도 글씨가 잘 보이게 배경 살짝 어둡게 처리 */
+        .media-inner-nav .ghost-btn {
+            pointer-events: auto; /* 버튼 자체는 클릭되게 설정 */
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .faint-white { color: rgba(255, 255, 255, 0.3); font-size: 8px; letter-spacing: 3px; text-transform: uppercase; font-weight: bold; }
@@ -162,7 +171,6 @@
             const mediaUrl = data.media ? URL.createObjectURL(data.media) : null;
             const audioUrl = data.audio ? URL.createObjectURL(data.audio) : null;
 
-            // 🔥 덮개 열었을 때 바로 보이는 "클로즈", "수정", "삭제" 버튼 부분입니다.
             card.innerHTML = `
                 <div class="media-back">
                     <div class="media-display" onclick="triggerUp(${data.id}, 'media')">
@@ -261,13 +269,4 @@
         }
 
         async function deleteAudio(id) { if(confirm("Delete music?")) { const d = await getData("slots", id); d.audio = null; if(d.fixed) d.fixed.audio = false; await saveData("slots", d); document.getElementById(`player-${id}`).src = ""; document.querySelector(`#card-${id} .fix-audio`).classList.remove('active'); } }
-        async function deleteCard(id) { if(confirm("Delete slot?")) { const tx = db.transaction("slots", "readwrite"); tx.objectStore("slots").delete(id); document.getElementById(`card-${id}`).remove(); cardIDs = cardIDs.filter(x => x !== id); } }
-        function togglePanel() { document.getElementById('mainPanel').classList.toggle('is-open'); }
-        function toggleShutter(id) { document.getElementById(`card-${id}`).classList.toggle('open'); }
-        document.getElementById('bgIn').onchange = async e => { const f = e.target.files[0]; if(f) { await saveData("settings", { id: "bg", file: f }); location.reload(); } };
-        async function deleteBG() { if(confirm("Clear BG?")) { const tx = db.transaction("settings", "readwrite"); tx.objectStore("settings").delete("bg"); location.reload(); } }
-        function toggleBGFix() { isBGFixed = !isBGFixed; document.body.style.backgroundAttachment = isBGFixed ? "fixed" : "scroll"; document.getElementById('bgFixBtn').innerText = isBGFixed ? "FIX BG: ON" : "FIX BG: OFF"; }
-        async function clearText(id) { if(confirm("Clear text?")) { document.getElementById(`text-${id}`).innerText = ""; const d = await getData("slots", id); d.text = ""; await saveData("slots", d); } }
-    </script>
-</body>
-</html>
+        async function deleteCard(id) { if(confirm("Delete slot?")) { const tx = db.transaction("slots", "readwrite"); tx.objectStore("slots").delete(id); document
