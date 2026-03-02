@@ -21,7 +21,7 @@
 
         .ghost-btn {
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
-            color: rgba(255, 255, 255, 0.4); padding: 3px 8px; border-radius: 10px; font-size: 7px;
+            color: rgba(255, 255, 255, 0.4); padding: 2px 8px; border-radius: 10px; font-size: 7px;
             cursor: pointer; backdrop-filter: blur(5px); text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
         }
         .ghost-btn:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
@@ -41,17 +41,17 @@
         .panel-handle { width: 100%; height: 70px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .handle-bar { width: 40px; height: 1px; background: rgba(255, 255, 255, 0.2); margin-bottom: 8px; }
 
-        /* [미술관 앱 스타일] 하단 무한 개방 및 넉넉한 바닥 여백 */
+        /* [핵심] 미술관 앱 스타일: 카드 간격 넓힘 및 하단 40vh 개방 */
         .board-area { width: min(95vw, 550px); flex: 1; overflow-y: auto; padding: 40px 0 40vh; display: flex; flex-direction: column; gap: 80px; }
         
-        /* [미술관 앱 스타일] 카드 자체가 내용물에 따라 무한히 늘어남 (height: auto) */
+        /* [핵심] 카드 자체가 내용물에 따라 무한히 늘어남 (height: auto) */
         .shutter-card {
             position: relative; width: 100%; min-height: 500px; height: auto;
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; overflow: hidden;
             display: flex; flex-direction: column;
         }
 
-        /* [미술관 앱 스타일] 덮개가 바닥을 밀어내며 무한 확장 (relative) */
+        /* [핵심] 덮개가 바닥을 밀어내며 무한 확장 (relative) */
         .shutter-cover {
             position: relative; width: 100%; height: auto; min-height: 500px;
             background: rgba(20, 20, 25, 0.98); backdrop-filter: blur(25px); z-index: 20;
@@ -104,7 +104,7 @@
     <script>
         // [GPT Fix] ID 관리 및 음악 단일 재생 설정
         let db, cardIDs = [], currentAudio = null;
-        const dbName = "AuraGolStableMasterDB";
+        const dbName = "AuraGolStableMuseumFinalDB";
         const request = indexedDB.open(dbName, 1);
 
         request.onupgradeneeded = e => {
@@ -124,7 +124,7 @@
             tx.objectStore("slots").openCursor().onsuccess = e => {
                 const cursor = e.target.result;
                 if(cursor) { renderCard(cursor.value); cardIDs.push(cursor.value.id); cursor.continue(); }
-                // [GPT Fix] cardIDs로 안전하게 렌더링 체크
+                // [GPT Fix] cardIDs로 안전하게 렌더링 체크 (6283.jpg 방지)
                 else if (cardIDs.length === 0) addNewCard();
             };
         }
@@ -175,7 +175,7 @@
             `;
             list.appendChild(card);
 
-            // [GPT Fix] 실시간 자동 저장 로직
+            // [실시간 자동 저장] 입력하는 즉시 저장
             const txt = document.getElementById(`text-${data.id}`);
             txt.oninput = async () => {
                 const dataObj = await getData("slots", data.id);
@@ -204,7 +204,7 @@
         }
 
         async function fixElement(id, type) { const data = await getData("slots", id); const btn = document.querySelector(`#card-${id} .fix-${type}`); btn.classList.toggle('active'); data.fixed[type] = btn.classList.contains('active'); if(type==='text') data.text = document.getElementById('text-'+id).innerText; await saveData("slots", data); }
-        async function deleteAudio(id) { if(confirm("Delete music?")) { const d = await getData("slots", id); d.audio = null; d.fixed.audio = false; await saveData("slots", d); document.getElementById(`player-${id}`).src = ""; document.querySelector(`#card-${id} .fix-audio`).classList.remove('active'); } }
+        async function deleteAudio(id) { if(confirm("Delete music?")) { const d = await getData("slots", id); d.audio = null; await saveData("slots", d); document.getElementById(`player-${id}`).src = ""; } }
         async function deleteCard(id) { if(confirm("Delete slot?")) { const tx = db.transaction("slots", "readwrite"); tx.objectStore("slots").delete(id); document.getElementById(`card-${id}`).remove(); cardIDs = cardIDs.filter(x => x !== id); if(cardIDs.length === 0) addNewCard(); } }
         function addNewCard() { const newId = cardIDs.length > 0 ? Math.max(...cardIDs) + 1 : 1; cardIDs.push(newId); const data = { id: newId, text: "Write your insight...", fixed: {} }; saveData("slots", data); renderCard(data); }
         function togglePanel() { document.getElementById('mainPanel').classList.toggle('is-open'); }
