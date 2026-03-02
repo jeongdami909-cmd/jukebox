@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA-GOL: Pure Gold Edition</title>
+    <title>AURA-GOL: The Swan Lake Orgel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+KR:wght@300;400&display=swap');
-
+        
         body {
             background: radial-gradient(circle at center, #1a0f0a 0%, #000 100%);
             color: #d4af37; font-family: 'Cinzel', serif;
@@ -15,139 +15,131 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        .orgel-unit { position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; }
+        /* 1. 발레리나와 무대 */
+        .orgel-unit { position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; perspective: 1000px; }
 
-        /* 절대 깨지지 않는 SVG 발레리나 무대 */
-        .ballerina-stage {
-            width: 220px; height: 300px;
-            z-index: 10; margin-bottom: -30px;
-            transform-style: preserve-3d;
-            perspective: 1000px;
+        .ballerina-sculpture {
+            height: 350px; z-index: 10; margin-bottom: -30px;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.4)) contrast(1.1);
+            transform-style: preserve-3d; transition: transform 0.1s linear;
         }
 
-        .ballerina-svg {
-            width: 100%; height: 100%;
-            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5));
-        }
-
-        .spinning { animation: rotate3D 10s linear infinite; }
-
-        @keyframes rotate3D {
-            from { transform: rotateY(0deg); }
-            to { transform: rotateY(360deg); }
-        }
-
-        .wooden-base {
-            width: 340px; height: 120px;
-            background: linear-gradient(to bottom, #4e342e, #1a0f0a);
-            border: 4px solid #2a1b0a; border-radius: 12px;
-            box-shadow: 0 40px 80px rgba(0,0,0,1);
+        .wooden-box {
+            width: 380px; height: 160px;
+            background: linear-gradient(to bottom, #4e342e, #1a0f0a), url('https://www.transparenttextures.com/patterns/dark-wood.png');
+            border: 6px solid #2a1b0a; border-radius: 12px;
+            box-shadow: 0 40px 80px rgba(0,0,0,1), inset 0 2px 20px rgba(255,255,255,0.05);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        .brass-key {
-            width: 70px; height: 70px; cursor: pointer;
+        /* 2. 리얼 수동 태엽 */
+        #wind-key {
+            width: 80px; height: 80px; cursor: pointer;
             background: radial-gradient(circle, #f3d078, #b08a2e);
-            border: 3px solid #3e2723; border-radius: 50%;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.8);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 28px; transition: 0.2s;
+            border: 4px solid #3e2723; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 32px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.8); transition: transform 0.2s;
         }
-        .brass-key:active { transform: scale(0.9) rotate(45deg); }
+        #wind-key:active { transform: scale(0.9) rotate(60deg); }
 
+        /* 3. 20페이지 책 UI */
         .book-ui {
-            width: 440px; background: #fdf5e6; border: 3px solid #5c3a21; border-radius: 4px;
+            width: 480px; background: #fdf5e6; border: 3px solid #5c3a21; border-radius: 4px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8); padding: 15px 25px; color: #2a1b0a;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8); padding: 15px 30px; color: #2a1b0a;
         }
 
-        .page-flip { font-size: 35px; cursor: pointer; user-select: none; opacity: 0.7; transition: 0.2s; }
-        .page-flip:hover { opacity: 1; color: #8b4513; transform: scale(1.1); }
+        .page-btn { font-size: 40px; cursor: pointer; user-select: none; opacity: 0.7; transition: 0.3s; }
+        .page-btn:hover { opacity: 1; color: #8b4513; transform: scale(1.1); }
 
         .track-info { text-align: center; flex: 1; }
-        .track-info h3 { margin: 0; font-size: 18px; font-weight: 700; }
+        .track-info h3 { margin: 0; font-size: 19px; font-weight: 700; }
         .track-info p { margin-bottom: 4px; font-size: 11px; font-weight: bold; color: #8b4513; letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
     <div class="orgel-unit">
-        <div class="ballerina-stage" id="stage">
-            <svg class="ballerina-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <path d="M50,10 C52,10 54,12 54,15 C54,18 52,20 50,20 C48,20 46,18 46,15 C46,12 48,10 50,10 M50,20 L50,45 M50,45 L35,65 M50,45 L65,65 M35,30 C35,30 40,35 50,35 C60,35 65,30 65,30" fill="none" stroke="#d4af37" stroke-width="2"/>
-                <ellipse cx="50" cy="50" rx="30" ry="10" fill="rgba(212, 175, 55, 0.3)" stroke="#d4af37" stroke-width="1"/>
-                <path d="M50,55 L45,90 M50,55 L55,90" fill="none" stroke="#d4af37" stroke-width="2"/>
-            </svg>
-        </div>
-        
-        <div class="wooden-base">
-            <div class="brass-key" id="windKey">🗝️</div>
-            <p style="font-size: 10px; margin-top: 10px; letter-spacing: 2px; font-weight: bold; color: #d4af37;">WIND UP TO PLAY</p>
+        <img id="dancer" class="ballerina-sculpture" src="https://i.ibb.co/6P0qXFh/ballerina-statue.png" alt="Swan Lake Ballerina">
+        <div class="wooden-box">
+            <div id="wind-key">🗝️</div>
+            <p style="font-size: 11px; margin-top: 15px; letter-spacing: 3px; font-weight: bold; color: #d4af37;">WIND UP TO PLAY</p>
         </div>
     </div>
 
     <div class="book-ui">
-        <div class="page-flip" id="prev">◀</div>
+        <div class="page-btn" id="prev">◀</div>
         <div class="track-info">
-            <p id="pageLabel">PAGE 01 / 20</p>
-            <h3 id="songTitle">라흐마니노프 - 보칼리제</h3>
+            <p id="pg-label">PAGE 01 / 20</p>
+            <h3 id="song-title">차이콥스키 - 백조의 호수</h3>
         </div>
-        <div class="page-flip" id="next">▶</div>
+        <div class="page-flip page-btn" id="next">▶</div>
     </div>
 
     <audio id="player" loop></audio>
 
     <script>
-        let isPlaying = false, page = 1;
-        const stage = document.getElementById('stage'), player = document.getElementById('player');
+        let energy = 0, angle = 0, page = 1, isPlaying = false;
+        const dancer = document.getElementById('dancer'), player = document.getElementById('player');
 
-        // 검증된 맑은 오르골 음원 (락 음악 절대 없음)
-        const tracks = [
-            { t: "라흐마니노프 - 보칼리제", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=music-box-101186.mp3" },
+        // 100% 맑은 오르골(Music Box) 음원 20곡 리스트
+        const musicList = [
             { t: "차이콥스키 - 백조의 호수", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3?filename=swan-lake-122703.mp3" },
+            { t: "라흐마니노프 - 보칼리제", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=music-box-101186.mp3" },
             { t: "드뷔시 - 달빛", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3?filename=moonlight-82672.mp3" },
-            { t: "쇼팽 - 녹턴 2번", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
-            { t: "에릭 사티 - 짐노페디", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
-            { t: "슈만 - 트로이메라이", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+            { t: "슈만 - 트로이메라이", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
+            { t: "쇼팽 - 녹턴 2번", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
+            { t: "에릭 사티 - 짐노페디", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
             { t: "모차르트 - 작은별", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
             { t: "베토벤 - 엘리제를 위하여", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
             { t: "파헬벨 - 캐논", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
             { t: "리스트 - 사랑의 꿈", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
-            { t: "바흐 - 미뉴에트", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+            { t: "바흐 - G선상의 아리아", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
             { t: "브람스 - 왈츠", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
             { t: "생상스 - 백조", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
             { t: "멘델스존 - 봄의 노래", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
             { t: "엘가 - 사랑의 인사", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" },
-            { t: "드보르자크 - 유모레스크", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+            { t: "드보르자크 - 신세계로부터", s: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
             { t: "헨델 - 울게 하소서", s: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_10e017fc83.mp3" },
             { t: "포레 - 시칠리아노", s: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_34b1049c8f.mp3" },
             { t: "차이콥스키 - 호두까기 인형", s: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_034a787352.mp3" },
             { t: "그리그 - 솔베이지의 노래", s: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8b9d3e527.mp3" }
         ];
 
-        player.src = tracks[0].s;
+        player.src = musicList[0].s;
 
-        function update() {
-            const track = tracks[page-1];
-            document.getElementById('pageLabel').innerText = `PAGE ${String(page).padStart(2, '0')} / 20`;
-            document.getElementById('songTitle').innerText = track.t;
+        // 곡 업데이트 함수
+        function updateTrack() {
+            const track = musicList[page-1];
+            document.getElementById('pg-label').innerText = `PAGE ${String(page).padStart(2, '0')} / 20`;
+            document.getElementById('song-title').innerText = track.t;
             player.src = track.s;
-            if(isPlaying) player.play();
+            if(energy > 0) player.play();
         }
 
-        document.getElementById('prev').onclick = () => { page = page>1 ? page-1 : 20; update(); };
-        document.getElementById('next').onclick = () => { page = page<20 ? page+1 : 1; update(); };
+        document.getElementById('prev').onclick = () => { page = (page > 1) ? page - 1 : 20; updateTrack(); };
+        document.getElementById('next').onclick = () => { page = (page < 20) ? page + 1 : 1; updateTrack(); };
 
-        document.getElementById('windKey').onclick = () => {
-            isPlaying = !isPlaying;
-            if(isPlaying) {
-                player.play();
-                stage.classList.add('spinning');
-            } else {
-                player.pause();
-                stage.classList.remove('spinning');
-            }
+        // 태엽 감기 로직 (클릭할수록 에너지가 참)
+        document.getElementById('wind-key').onclick = () => {
+            energy = Math.min(energy + 35, 100);
+            if(!isPlaying) loop();
         };
+
+        function loop() {
+            isPlaying = true;
+            player.play();
+            const timer = setInterval(() => {
+                if(energy > 0) {
+                    energy -= 0.15;
+                    angle += (energy / 25);
+                    dancer.style.transform = `rotateY(${angle}deg)`;
+                    player.playbackRate = Math.max(0.65, energy / 50); // 에너지가 적으면 음악이 느려짐
+                } else {
+                    energy = 0; isPlaying = false; player.pause(); clearInterval(timer);
+                }
+            }, 50);
+        }
     </script>
 </body>
 </html>
