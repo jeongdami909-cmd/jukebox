@@ -28,7 +28,18 @@
         .ghost-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
         .ghost-btn.active { border-color: rgba(255, 255, 255, 0.8); color: #fff; background: rgba(255, 255, 255, 0.15); }
 
-        .top-nav { position: fixed; top: 30px; display: flex; gap: 8px; z-index: 2000; }
+        .top-nav { position: fixed; top: 30px; display: flex; gap: 8px; z-index: 2000; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 500px; padding: 0 10px;}
+
+        /* 🔥 추가된 검색창 스타일 */
+        .search-box {
+            display: flex; gap: 4px; align-items: center;
+        }
+        .search-input {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8); padding: 4px 10px; border-radius: 12px; font-size: 8px;
+            backdrop-filter: blur(5px); width: 60px; text-align: center; outline: none; font-family: 'Cinzel', serif;
+        }
+        .search-input::placeholder { color: rgba(255, 255, 255, 0.2); }
 
         .sliding-panel {
             position: fixed; bottom: 0; width: 100%; 
@@ -47,6 +58,7 @@
             width: min(95vw, 550px); flex: 1; 
             overflow-y: auto; overflow-x: hidden;
             padding: 40px 0; display: flex; flex-direction: column; gap: 60px; 
+            scroll-behavior: smooth; /* 🔥 스크롤 이동 시 부드럽게 가도록 추가 */
         }
         
         .board-area::after {
@@ -59,6 +71,7 @@
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); 
             border-radius: 30px; 
             display: flex; flex-direction: column;
+            scroll-margin-top: 20px; /* 🔥 검색해서 이동할 때 위쪽 여백 확보 */
         }
 
         .shutter-cover {
@@ -84,19 +97,16 @@
             text-align: left;
         }
 
-        /* 🔥 영상 크기를 원래대로 완벽하게 되돌림 (확대 현상 해결) */
         .media-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex; flex-direction: column; }
         .media-display { width: 100%; height: 350px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .media-display video, .media-display img { width: 100%; height: 100%; object-fit: cover; border-radius: 30px 30px 0 0; }
         
-        /* 🔥 버튼은 영상 상단에 투명하게 띄우기 유지 */
         .media-inner-nav { 
             position: absolute; top: 25px; left: 0; width: 100%; z-index: 10;
             display: flex; align-items: flex-start; justify-content: center; 
             gap: 10px; padding: 0 15px; flex-wrap: wrap; 
-            pointer-events: none; /* 빈 공간 클릭 시 아래 영상이 클릭되도록 통과 */
+            pointer-events: none; 
         }
-        /* 버튼 자체는 클릭 가능하도록 설정 */
         .media-inner-nav .ghost-btn {
             pointer-events: auto; 
             background: rgba(0, 0, 0, 0.6);
@@ -115,6 +125,11 @@
         <label class="ghost-btn">EDIT BG<input type="file" id="bgIn" accept="image/*"></label>
         <button class="ghost-btn" onclick="deleteBG()">DEL BG</button>
         <button class="ghost-btn" id="bgFixBtn" onclick="toggleBGFix()">FIX BG: ON</button>
+        
+        <div class="search-box">
+            <input type="number" id="searchInput" class="search-input" placeholder="NO." onkeypress="if(event.key === 'Enter') searchCard()">
+            <button class="ghost-btn" onclick="searchCard()">GO</button>
+        </div>
     </div>
 
     <div class="sliding-panel" id="mainPanel">
@@ -193,8 +208,7 @@
                     </div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                        <span class="faint-white">#ARCHIVE</span>
-                        <div style="display: flex; gap: 5px;">
+                        <span class="faint-white">#${data.id} ARCHIVE</span> <div style="display: flex; gap: 5px;">
                             <button class="ghost-btn" style="font-size: 5px;" onclick="document.getElementById('text-${data.id}').focus()">EDIT TEXT</button>
                             <button class="ghost-btn fix-text ${data.fixed && data.fixed.text ? 'active' : ''}" style="font-size: 5px;" onclick="fixElement(${data.id}, 'text')">FIX TEXT</button>
                             <button class="ghost-btn" style="font-size: 5px;" onclick="toggleShutter(${data.id})">OPEN VIEW</button>
@@ -223,6 +237,32 @@
             const data = { id: newId, text: "Write your insight...", fixed: {} }; 
             saveData("slots", data); 
             renderCard(data); 
+        }
+
+        // 🔥 추가된 검색 로직
+        function searchCard() {
+            const inputVal = document.getElementById('searchInput').value;
+            if(!inputVal) return;
+            
+            const targetId = `card-${inputVal}`;
+            const targetCard = document.getElementById(targetId);
+            
+            if(targetCard) {
+                // 1. 패널 닫혀있으면 열기
+                document.getElementById('mainPanel').classList.add('is-open');
+                
+                // 2. 패널 열리는 애니메이션(0.8s)을 살짝 기다렸다가 해당 카드로 스크롤
+                setTimeout(() => {
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // 찾은 카드 깜빡이는 효과 (선택사항, 지워도 무방)
+                    targetCard.style.boxShadow = "0 0 20px rgba(255,255,255,0.5)";
+                    setTimeout(() => targetCard.style.boxShadow = "none", 1500);
+                }, 300);
+                
+                document.getElementById('searchInput').value = ''; // 입력창 비우기
+            } else {
+                alert("존재하지 않는 번호입니다.");
+            }
         }
 
         async function triggerUp(id, type) {
